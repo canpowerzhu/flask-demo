@@ -3,7 +3,8 @@
 # @Software: PyCharm
 # @Description:
 from src import create_app
+from settings.conf import PrdConfig
 
 if __name__ == '__main__':
-    my_app = create_app()
-    my_app.run()
+    app = create_app()
+    app.run(host=PrdConfig.SERVER_HOST, port=PrdConfig.SERVER_PORT)
