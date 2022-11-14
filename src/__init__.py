@@ -25,4 +25,8 @@ def create_app():
     from src.user_bp.v1.user_crud import user_crud_bp
     app.register_blueprint(user_crud_bp)
 
+    # 注册管理aliyun oss sts
+    from src.aliyun_bp.v1.sts_main import sts_api_bp
+    app.register_blueprint(sts_api_bp)
+
     return app

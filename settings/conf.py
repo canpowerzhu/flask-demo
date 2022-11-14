@@ -102,6 +102,15 @@ class PrdConfig(BaseConfig):
 
     ALGORITHM = config('ALGORITHM', default="HS256")
 
+    ###################################################################################################################
+    # OSS
+    OSS_ACCESS_KEY_ID = config('OSS_ACCESS_KEY_ID', default='')
+    OSS_ACCESS_KEY_SECRET = config('OSS_ACCESS_KEY_SECRET', default='')
+    OSS_BUCKET = config('OSS_BUCKET', default='')
+    OSS_ENDPOINT = config('OSS_ENDPOINT',default='')
+    OSS_STS_ARN = config('OSS_STS_ARN',default=None)
+
+
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
