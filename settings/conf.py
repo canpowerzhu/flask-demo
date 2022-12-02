@@ -110,7 +110,14 @@ class PrdConfig(BaseConfig):
     OSS_ENDPOINT = config('OSS_ENDPOINT',default='')
     OSS_STS_ARN = config('OSS_STS_ARN',default=None)
 
+    #OSS分片上传参数
+    OSS_PART_SIZE = config('OSS_PART_SIZE',default=100*1024*1024)  #分片上传默认的分片大小100MB 官方是100KB
+    OSS_MULTI_THRESHOLD = config('OSS_MULTI_THRESHOLD',default=100*1024) #文件长度阈值 大于后启用分片
+    OSS_NUM_THREADS = config('OSS_NUM_THREADS',default=8) #设置并发上传线程数
 
+    BROKER_URL = config('BROKER_URL',default="redis://192.168.1.4:6369/1")
+    CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND',default="redis://192.168.1.4:6369/1")
+    CELRY_TIMEZONE = 'Asia/Shanghai'
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
