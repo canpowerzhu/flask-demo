@@ -36,7 +36,7 @@ def gernate_sts_token(region_id):
     :param role_arn:
     :return:
     """
-    clt = client.AcsClient(access_key_id, access_key_secret,region_id)
+    clt = client.AcsClient(access_key_id, access_key_secret, region_id)
     req = AssumeRoleRequest.AssumeRoleRequest()
 
     req.set_accept_format('json')
