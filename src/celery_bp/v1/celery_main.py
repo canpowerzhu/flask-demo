@@ -8,9 +8,6 @@ from flask import Blueprint, jsonify
 task_bp = Blueprint('celery_bp', __name__)
 
 
-
-
-
 @task_bp.route('/v1/process/<name>')
 def process(name):  # put application's code here
     from utils.kane_celery.tasks import reverse
@@ -25,6 +22,7 @@ def process_schedule(name):  # put application's code here
     task = reverse_schedule.delay(name)
 
     return jsonify({'msg:': 'i send an asyn request', 'taskId': task.task_id})
+
 
 @task_bp.route('/v1/task_status/<taskId>', methods=['GET'])
 def get_add(taskId):
