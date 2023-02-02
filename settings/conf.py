@@ -22,6 +22,7 @@ class BaseConfig(object):
     SECRET_KEY = config('SECRET_KEY', default='')
     ACCESS_SECRET_KEY = config('ACCESS_SECRET_KEY', default='')
     REFRESH_SECRET_KEY = config('REFRESH_SECRET_KEY', default='')
+
     #######################################################################################
     # server start param
     SERVER_HOST = config('SERVER_HOST', default='0.0.0.0')
@@ -118,6 +119,9 @@ class PrdConfig(BaseConfig):
     BROKER_URL = config('BROKER_URL',default="redis://192.168.1.4:6369/1")
     CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND',default="redis://192.168.1.4:6369/1")
     CELRY_TIMEZONE = 'Asia/Shanghai'
+
+    TEMPLATE_PATH=os.path.join(os.path.dirname(BASE_PATH),'templates')
+    STATIC_PATH=os.path.join(os.path.dirname(BASE_PATH),'static')
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
