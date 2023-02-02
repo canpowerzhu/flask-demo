@@ -1,0 +1,25 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MFA谷歌验证页面</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="text-align: center">
+<div style="margin:0 auto;">
+    <h1>MFA谷歌验证页面</h1>
+    {% if img_stream and gtoken%}
+        <!--显示谷歌验证二维码-->
+         <img  style="width:180px" src="data:image/png;base64,{{ img_stream }}"/>
+         <p>{{ gtoken }}</p>
+    {% else %}
+        <p>谷歌验证二维码获取失败，请联系管理员</p>
+    {% endif %}
+<p>请使用google authenticator APP客户端扫描条形码</p>
+<br>
+<a href="/">返回首页</a>
+</div>
+</body>
+
+</html>

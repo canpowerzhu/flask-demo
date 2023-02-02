@@ -121,6 +121,7 @@ class PrdConfig(BaseConfig):
     CELRY_TIMEZONE = 'Asia/Shanghai'
 
     TEMPLATE_PATH=os.path.join(os.path.dirname(BASE_PATH),'templates')
+    STATIC_PATH=os.path.join(os.path.dirname(BASE_PATH),'static')
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
