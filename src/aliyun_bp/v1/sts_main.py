@@ -5,10 +5,10 @@
 from flask import Blueprint, request, jsonify
 from utils.oss_aliyun.sts_token import gernate_sts_token
 
-sts_api_bp = Blueprint('aliyun_oss_sts', __name__)
+sts_api_bp = Blueprint('aliyun_oss_sts', __name__, url_prefix="/v1/ali_cloud")
 
 
-@sts_api_bp.route('/v1/oss_sts_token', methods=['GET'])
+@sts_api_bp.route('/oss_sts_token', methods=['GET'])
 def get_sts_token():
     region_id = request.args.get('region_id')
     sts_token = gernate_sts_token(region_id)
