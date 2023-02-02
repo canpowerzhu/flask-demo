@@ -11,6 +11,7 @@ from dao import DatabaseConfig
 from src.user_bp.v1.user_crud import user_crud_bp
 from src.aliyun_bp.v1.sts_main import sts_api_bp
 from src.celery_bp.v1.celery_main import task_bp
+from src.login_out_bp.v1.auth import login_out_bp
 
 
 
@@ -29,7 +30,9 @@ def create_app():
         db.create_all()
 
     # 注册
+    app.register_blueprint(login_out_bp)
     app.register_blueprint(user_crud_bp)
     app.register_blueprint(sts_api_bp)
     app.register_blueprint(task_bp)
+    app.secret_key = "affedasafafqwe"
     return app
