@@ -46,3 +46,12 @@ def return_img_stream(img_local_path):
         img_stream = base64.b64encode(img_stream) #Base64是一种用64个字符来表示任意二进制数据的方法。
         img_stream=img_stream.decode()  ##bytes转成字符串
     return img_stream
+
+def google_verify_result(secret_key, verifycode):
+    t = pyotp.TOTP(secret_key)
+    result = t.verify(verifycode)  # 对输入验证码进行校验，正确返回True
+    if result:
+        msg = True
+    else:
+        msg = False
+    return msg
