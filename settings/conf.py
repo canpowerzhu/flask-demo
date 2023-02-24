@@ -123,5 +123,14 @@ class PrdConfig(BaseConfig):
     TEMPLATE_PATH=os.path.join(os.path.dirname(BASE_PATH),'templates')
     STATIC_PATH=os.path.join(os.path.dirname(BASE_PATH),'static')
 
+
+    #Email config
+    ## Email
+    EMAIL_FROM_ACCOUNT = config('EMAIL_FROM_ACCOUNT', default='')
+    EMAIL_FROM_ACCOUNT_PASS = config('EMAIL_FROM_ACCOUNT_PASS', default='')
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.mxhichina.com')
+    EMAIL_SMTP_PORT = config('EMAIL_SMTP_PORT', default=465)
+
+
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
