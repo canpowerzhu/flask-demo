@@ -4,9 +4,12 @@
 # @Description:
 import pyotp
 from flask import Blueprint, jsonify, render_template, request, flash, redirect, url_for
+
+from dao.ops_db_users import db_ops_get_user
 from settings.conf import PrdConfig
 from utils.mfa.mfa_tool import get_qrcode, return_img_stream, google_verify_result
 from log_settings import logger
+from service.user_service import user_reg, login_user_verify
 
 login_out_bp = Blueprint('login_out_bp', __name__, template_folder=PrdConfig.TEMPLATE_PATH)
 
@@ -27,10 +30,9 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-
-        if email == "kane.zhu@example.com" or password == '123':
-            return render_template('verifycode_mfa.html')
-            # return redirect(url_for('login_out_bp.verify_code'))
+        status=login_user_verify(email,password)
+        if status:
+            return render_template('verifycode_mfa.html',email=email)
         else:
             flash('Please check your login details and try again.')
             return redirect(url_for('login_out_bp.login'))
@@ -47,18 +49,18 @@ def signup():
         reg_password = request.form.get('password')
         logger.info("用户{}注册成功，邮箱为{},密码是{}".format(reg_username,reg_email,reg_password))
         # 这里临时生成gtoken,生产环境则是来自数据库
-        # gtoken = pyotp.random_base32(64)
-        gtoken = "45JG73NODG6CXJ5SDNKQCWO2VD6M34JXSTWXBTBWH6NFQOAHVWBMBPZPKMYYTGU4"
+        gtoken = pyotp.random_base32(64)
+        user_reg(reg_username,reg_password,reg_email,gtoken)
         return redirect(url_for('login_out_bp.mfa', gtoken=gtoken, username=str(reg_username)))
 
     return render_template('signup.html')
 
 
-@login_out_bp.route("/verify_mfa_code",methods=["POST"])
-def verify_code():
+@login_out_bp.route("/verify_mfa_code/<string:email>",methods=["POST"])
+def verify_code(email):
     mfa_code = request.form.get('verify_code')
+    _,secret_key= db_ops_get_user(email)
     logger.info("mfa code is {}".format(mfa_code))
-    secret_key = '45JG73NODG6CXJ5SDNKQCWO2VD6M34JXSTWXBTBWH6NFQOAHVWBMBPZPKMYYTGU4'
     verify_page = 'login_out_bp.profile' if google_verify_result(secret_key,mfa_code) else 'login_out_bp.login'
 
     return redirect(url_for(verify_page))
