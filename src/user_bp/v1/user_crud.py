@@ -6,7 +6,7 @@
 
 from flask import Blueprint, jsonify
 
-user_crud_bp = Blueprint('user_crud', __name__,url_prefix="/v1/user")
+user_crud_bp = Blueprint('user_crud', __name__)
 
 
 @user_crud_bp.route('/demo_data', methods=['GET'])

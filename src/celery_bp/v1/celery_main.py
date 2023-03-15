@@ -5,7 +5,7 @@
 
 from flask import Blueprint, jsonify
 
-task_bp = Blueprint('celery_bp', __name__,url_prefix="/v1/celery_kane")
+task_bp = Blueprint('celery_bp', __name__)
 
 
 @task_bp.route('/process/<name>')
