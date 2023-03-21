@@ -34,7 +34,6 @@ def db_ops_root_domain_bulk(bulk_insert_root_domain_info_dict):
 def db_ops_get_token(user):
     try:
         name_user_token = Domainaccount.query.filter_by(username=user).first()
-        # name_user_token = db.session.query(Domainaccount.token).filter(Domainaccount.username == user).first()
     except Exception as e:
         logger.error(e)
         return False,e
@@ -44,23 +43,10 @@ def db_ops_get_token(user):
 def db_ops_get_root_domain(user):
     try:
         name_user_root_domain = Domainlist.query.filter_by(name_account=user).all()
-        # name_user_root_domain = db.session.query(Domainlist.domainName).filter(Domainlist.name_account == user).first()
     except Exception as e:
         logger.error(e)
         return False,e
     return True,name_user_root_domain
-
-
-# #更新域名解析数量
-# def db_ops_root_domain_count_update(app,root_domain,count):
-#     with app.app_context():
-#         try:
-#             Domainlist.query.filter_by(domainName=root_domain).update({"name_status":count})
-#         except Exception as e:
-#             logger.error(e)
-#             return False
-#
-#         return True
 
 
 #批量插入子域名的信息

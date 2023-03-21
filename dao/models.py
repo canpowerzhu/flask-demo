@@ -69,10 +69,10 @@ class Domainlist(db.Model):
     name_account = db.Column(db.String(100), info="所属账户")
     domain_name = db.Column(db.String(100), info="域名")
     locked =  db.Column(db.Boolean,info="是否锁定")
-    autorenewEnabled =  db.Column(db.Boolean,info="是否自动续费")
+    autorenew_enabled =  db.Column(db.Boolean,info="是否自动续费")
     name_status = db.Column(db.String(50), info="域名是否有解析")
-    expireDate = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
-    createDate = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
+    expire_date = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
+    create_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
 
 
 
