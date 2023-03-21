@@ -134,6 +134,11 @@ class PrdConfig(BaseConfig):
     # NAME Domain config
     NAME_API_URL = config('NAME_API_URL',default='')
 
+    # ALI Domain config
+    ACCESS_KEY_ID = config('ACCESS_KEY_ID',default='')
+    ACCESS_SECRET = config('ACCESS_SECRET',default='')
+    ALI_USERNAME = config('ALI_USERNAME',default='')
+
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
