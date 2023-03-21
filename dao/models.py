@@ -39,3 +39,41 @@ class User(db.Model, UserMixin):
 
     db.to_dict = to_dict
 
+
+class Domainaccount(db.Model):
+    __tablename__ = "tbl_domain_account"
+    id = db.Column(db.Integer, primary_key=True)
+    register_website = db.Column(db.String(50), info="域名注册服务商")
+    username = db.Column(db.String(50), info="域名账户")
+    password = db.Column(db.String(50), info="域名账户密码")
+    token_name = db.Column(db.String(100), default='', info="令牌名称")
+    token = db.Column(db.String(100),default='', info="令牌")
+    account_code = db.Column(db.String(50), info="域名账户码")
+    account_status = db.Column(db.Boolean, info="域名账户是否有域名 1 表示账户下有域名, 0 则没有域名")
+    remark = db.Column(db.String(100),info="备注")
+
+class Domaininfo(db.Model):
+    __tablename__ = "tbl_domain_info"
+    id = db.Column(db.Integer, primary_key=True)
+    register_website = db.Column(db.String(100))
+    name_account = db.Column(db.String(100), info="所属账户")
+    domain_name = db.Column(db.String(100), info="根域名")
+    fqdn = db.Column(db.String(100), info="二级域名")
+    type = db.Column(db.String(20), info="域名解析方式A、CNAME、TXT")
+    answer = db.Column(db.String(500), info="解析的属性值")
+
+
+class Domainlist(db.Model):
+    __tablename__ = "tbl_domain"
+    id = db.Column(db.Integer, primary_key=True)
+    name_account = db.Column(db.String(100), info="所属账户")
+    domainName = db.Column(db.String(100), info="域名")
+    locked =  db.Column(db.Boolean,info="是否锁定")
+    autorenewEnabled =  db.Column(db.Boolean,info="是否自动续费")
+    name_status = db.Column(db.String(50), info="域名是否有解析")
+    expireDate = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
+    createDate = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
+
+
+
+

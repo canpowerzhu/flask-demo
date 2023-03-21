@@ -5,8 +5,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from settings.conf import PrdConfig
+
 import pymysql
-from flask import current_app
 pymysql.install_as_MySQLdb()
 
 
