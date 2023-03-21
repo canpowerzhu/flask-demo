@@ -67,7 +67,7 @@ class Domainlist(db.Model):
     __tablename__ = "tbl_domain"
     id = db.Column(db.Integer, primary_key=True)
     name_account = db.Column(db.String(100), info="所属账户")
-    domainName = db.Column(db.String(100), info="域名")
+    domain_name = db.Column(db.String(100), info="域名")
     locked =  db.Column(db.Boolean,info="是否锁定")
     autorenewEnabled =  db.Column(db.Boolean,info="是否自动续费")
     name_status = db.Column(db.String(50), info="域名是否有解析")

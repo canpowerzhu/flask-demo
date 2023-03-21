@@ -40,7 +40,7 @@ def sync_name_root_domain():
         for single_domain_info in domainresult:
             single_domain_info_data = {
                 "name_account": account_info[0],
-                "domainName": single_domain_info['domainName'],
+                "domain_name": single_domain_info['domainName'],
                 "locked": 1 if 'locked' in single_domain_info and single_domain_info['locked'] == "True" else 0,
                 "autorenewEnabled": 1 if 'autorenewEnabled' in single_domain_info else 0,
                 "expireDate": single_domain_info['expireDate'].split('T')[0].split('T')[0],

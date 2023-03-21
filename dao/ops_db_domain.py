@@ -69,10 +69,10 @@ def db_ops_sub_domain_bulk(app,bulk_insert_sub_domain_info,root_domain,count):
         try:
             if len(bulk_insert_sub_domain_info) != 0:
                 db.session.execute(Domaininfo.__table__.insert(),bulk_insert_sub_domain_info)
-                Domainlist.query.filter_by(domainName=root_domain).update({"name_status": count})
+                Domainlist.query.filter_by(domain_name=root_domain).update({"name_status": count})
                 db.session.commit()
             else:
-                Domainlist.query.filter_by(domainName=root_domain).update({"name_status": count})
+                Domainlist.query.filter_by(domain_name=root_domain).update({"name_status": count})
                 db.session.commit()
         except Exception as e:
             logger.error(e)
