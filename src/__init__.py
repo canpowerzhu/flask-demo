@@ -13,6 +13,7 @@ from src.aliyun_bp.v1.sts_main import sts_api_bp
 from src.celery_bp.v1.celery_main import task_bp
 from src.login_out_bp.v1.auth import login_out_bp
 from src.domain_bp.v1.name_domain import domain_name_bp
+from src.aliyun_bp.v1.ali_domain import domain_ali_bp
 from dao import db
 
 
@@ -41,5 +42,6 @@ def setup_app(app):
     app.register_blueprint(login_out_bp)
     app.register_blueprint(user_crud_bp,url_prefix="/v1/user")
     app.register_blueprint(domain_name_bp,url_prefix="/v1/domain")
-    app.register_blueprint(sts_api_bp)
+    app.register_blueprint(sts_api_bp,url_prefix="/v1/ali_cloud/sts")
+    app.register_blueprint(domain_ali_bp,url_prefix="/v1/ali_cloud/domain")
     app.register_blueprint(task_bp,url_prefix="/v1/celery_kane")

@@ -138,6 +138,7 @@ class PrdConfig(BaseConfig):
     ACCESS_KEY_ID = config('ACCESS_KEY_ID',default='')
     ACCESS_SECRET = config('ACCESS_SECRET',default='')
     ALI_USERNAME = config('ALI_USERNAME',default='')
+    DOMAIN_RECORD_PAGE_SIZE = config('DOMAIN_RECORD_PAGE_SIZE',default='') #设置获取域名解析记录的单页数量
 
 
 Config = PrdConfig

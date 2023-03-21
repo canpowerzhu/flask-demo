@@ -59,7 +59,7 @@ def sync_sub_domain_info(account_username):
 
     if status_domain and status_token:
         for root_domain_item in root_domain:
-            pool_arr.append(pool.submit(async_sub_domain_record,current_app._get_current_object(), account_username,account_token.token,root_domain_item.domainName))
+            pool_arr.append(pool.submit(async_sub_domain_record,current_app._get_current_object(), account_username,account_token.token,root_domain_item.domain_name))
             result = [i.result() for i in pool_arr]
             print("result:{}".format(result))
 
