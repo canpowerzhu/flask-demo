@@ -131,6 +131,9 @@ class PrdConfig(BaseConfig):
     EMAIL_HOST = config('EMAIL_HOST', default='smtp.mxhichina.com')
     EMAIL_SMTP_PORT = config('EMAIL_SMTP_PORT', default=465)
 
+    # NAME Domain config
+    NAME_API_URL = config('NAME_API_URL',default='')
+
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
