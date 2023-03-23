@@ -140,6 +140,11 @@ class PrdConfig(BaseConfig):
     ALI_USERNAME = config('ALI_USERNAME',default='')
     DOMAIN_RECORD_PAGE_SIZE = config('DOMAIN_RECORD_PAGE_SIZE',default='') #设置获取域名解析记录的单页数量
 
+    #JENKINS Config
+    JENKINS_HOST = config('JENKINS_HOST', default='')
+    JENKINS_API_USER = config('JENKINS_API_USER', default='')
+    JENKINS_API_TOKEN = config('JENKINS_API_TOKEN', default='')
+
 
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
