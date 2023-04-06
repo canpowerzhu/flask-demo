@@ -84,9 +84,15 @@ class BaseConfig(object):
 class PrdConfig(BaseConfig):
     ###################################################################################################################
     # redis
-    REDIS_HOST = config('REDIS_HOST', default='127.0.0.1')
-    REDIS_PORT = config('REDIS_PORT', cast=int, default=6379)
+    REDIS_TYPE = config('REDIS_TYPE', default='cluster')
+    REDIS_HOST = config('REDIS_HOST', default='192.168.1.4')
+    REDIS_PORT = config('REDIS_PORT', cast=int, default=6369)
+    REDIS_DB = config('REDIS_DB', cast=int, default=0)
     REDIS_PASSWD = config('REDIS_PASSWD', default='')
+    ALI_CLOUD_MAIL_KEY_NAME = config('ALI_CLOUD_MAIL_KEY_NAME',default='ali_cloud_mail_token')
+    # 返回48小时，所以我们的缓存key必须小于48小时
+    ALI_CLOUD_MAIL_KEY_EXPIRE_SECOND = config('ALI_CLOUD_MAIL_KEY_EXPIRE_SECOND',cast=int, default=129600)
+
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8

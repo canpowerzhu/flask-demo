@@ -14,3 +14,6 @@ mail_ali_bp = Blueprint('mail_ali_bp', __name__)
 def get_mail_ali_token():
     data= ali_mail_token()
     return  jsonify({"code":200,"status":"success","data":data})
+
+# Department crud
+# Account crud
