@@ -7,6 +7,7 @@
 from flask import Flask
 
 from dao import DatabaseConfig
+from src.aliyun_bp.v1.ali_mail import mail_ali_bp
 
 from src.user_bp.v1.user_crud import user_crud_bp
 from src.aliyun_bp.v1.sts_main import sts_api_bp
@@ -47,3 +48,4 @@ def setup_app(app):
     app.register_blueprint(domain_ali_bp,url_prefix="/v1/ali_cloud/domain")
     app.register_blueprint(task_bp,url_prefix="/v1/celery_kane")
     app.register_blueprint(jenkins_ops_bp,url_prefix="/v1/jenkins")
+    app.register_blueprint(mail_ali_bp,url_prefix="/v1/ali_cloud/mail")

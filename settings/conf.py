@@ -146,5 +146,10 @@ class PrdConfig(BaseConfig):
     JENKINS_API_TOKEN = config('JENKINS_API_TOKEN', default='')
 
 
+    #ali cloud mail
+    ALI_MAIL_URL = config('ALI_MAIL_URL', default='')
+    ALI_MAIL_CLIENT_ID = config('ALI_MAIL_CLIENT_ID', default='')
+    ALI_MAIL_CLIENT_SECRET = config('ALI_MAIL_CLIENT_SECRET', default='')
+
 Config = PrdConfig
 ORM_LINK_CONF = Config().orm_link_conf
