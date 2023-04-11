@@ -33,8 +33,9 @@ def ali_mail_token():
 
 
     redis_con = get_redis_client()
-    if not check_token_is_expire():
-        redis_con.set(PrdConfig.ALI_CLOUD_MAIL_KEY_NAME,
+    # 这里不在判断缓存是否过期，只要初始化token 即覆盖缓存
+    # if not check_token_is_expire():
+    redis_con.set(PrdConfig.ALI_CLOUD_MAIL_KEY_NAME,
                       json.loads(bytes.decode(res.content))['access_token'],
                       ex=PrdConfig.ALI_CLOUD_MAIL_KEY_EXPIRE_SECOND)
 

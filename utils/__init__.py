@@ -18,3 +18,12 @@ def get_redis_client():
     redis_conn = redis.Redis(connection_pool=pool)
 
     return redis_conn
+
+
+def get_ali_mail_token():
+    redis_con = get_redis_client()
+    res = redis_con.get(PrdConfig.ALI_CLOUD_MAIL_KEY_NAME)
+
+    ali_mail_token_from_redis = "bearer {}".format(bytes.decode(res))
+
+    return  ali_mail_token_from_redis
