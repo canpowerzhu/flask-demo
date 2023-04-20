@@ -52,7 +52,7 @@ class AliMailDepartment(object):
                            }
         return self.__result_do_with(ali_mail_url, department_body)
 
-    def edit_departemnt(self, department_id, email_list):
+    def edit_department(self, department_id, email_list):
         ali_mail_url = '{}/v0/ud/updateDepartment'.format(PrdConfig.ALI_MAIL_URL)
         department_body = {"access": {"accessTarget": self.access_target},
                            "param": {
