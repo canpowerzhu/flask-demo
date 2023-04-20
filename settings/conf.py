@@ -159,6 +159,13 @@ class PrdConfig(BaseConfig):
     ALI_MAIL_CLIENT_SECRET = config('ALI_MAIL_CLIENT_SECRET', default='')
 
 
+    #gitlab 相关配置参数
+    GITLAB_URL = config('GITLAB_URL', default='http://192.168.1.7')
+    GITLAB_PRIVATE_TOKEN = config('GITLAB_PRIVATE_TOKEN', default='')
+
+
+
+
 
 
 Config = PrdConfig

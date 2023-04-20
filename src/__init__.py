@@ -16,6 +16,7 @@ from src.login_out_bp.v1.auth import login_out_bp
 from src.domain_bp.v1.name_domain import domain_name_bp
 from src.aliyun_bp.v1.ali_domain import domain_ali_bp
 from src.jenkins_bp.v1.jenkins_job import jenkins_ops_bp
+from src.gitlab_bp.v1.gitlab_funcs import gitlab_bp
 from dao import db
 
 
@@ -49,3 +50,4 @@ def setup_app(app):
     app.register_blueprint(task_bp,url_prefix="/v1/celery_kane")
     app.register_blueprint(jenkins_ops_bp,url_prefix="/v1/jenkins")
     app.register_blueprint(mail_ali_bp,url_prefix="/v1/ali_cloud/mail")
+    app.register_blueprint(gitlab_bp,url_prefix="/v1/gitlab")
