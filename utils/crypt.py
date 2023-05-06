@@ -38,9 +38,11 @@ class KaneCrypto(object):
         msg = self.__pre_check_length(msg)
         cryptos = AES.new(self.key, self.mode, self.iv)
         cipher_text = cryptos.encrypt(msg)
-        return b2a_hex(cipher_text)
+        return bytes.decode(b2a_hex(cipher_text))
+
 
     def decrypt(self, msg):
         crypto = AES.new(self.key, self.mode, self.iv)
         plain_text = crypto.decrypt(a2b_hex(msg))
         return bytes.decode(plain_text).rstrip('\0')
+
