@@ -14,3 +14,6 @@ endpoint = PrdConfig.OSS_ENDPOINT
 
 if not PrdConfig.OSS_STS_ARN is None:
     sts_role_arn = PrdConfig.OSS_STS_ARN
+
+
+

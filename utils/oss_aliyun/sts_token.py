@@ -7,6 +7,7 @@ import json
 from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 from aliyunsdkcore import client
 from utils.oss_aliyun import *
+from log_settings import logger
 
 for param in (access_key_id, access_key_secret, bucket_name, endpoint, sts_role_arn):
     assert '<' not in param, 'please setup param:' + param
@@ -29,8 +30,9 @@ class StsToken(object):
         self.request_id = ''
 
 
-def gernate_sts_token(region_id):
+def gernate_sts_token(region_id: str)-> bool:
     """
+    :param region_id:
     :param access_key_id:
     :param access_key_secret:
     :param role_arn:
@@ -42,19 +44,18 @@ def gernate_sts_token(region_id):
     req.set_accept_format('json')
     req.set_RoleArn(sts_role_arn)
     req.set_RoleSessionName('oss-python-sdk-example')
+    try:
+        body = clt.do_action_with_exception(req)
+        j = json.loads(oss2.to_unicode(body))
+        token = StsToken()
+        token.access_key_id = j['Credentials']['AccessKeyId']
+        token.access_key_secret = j['Credentials']['AccessKeySecret']
+        token.security_token = j['Credentials']['SecurityToken']
+        token.request_id = j['RequestId']
+        token.expiration = oss2.utils.to_unixtime(j['Credentials']['Expiration'], '%Y-%m-%dT%H:%M:%SZ')
+        return True,token
 
-    body = clt.do_action_with_exception(req)
-
-    j = json.loads(oss2.to_unicode(body))
-
-    token = StsToken()
-
-    token.access_key_id = j['Credentials']['AccessKeyId']
-    token.access_key_secret = j['Credentials']['AccessKeySecret']
-    token.security_token = j['Credentials']['SecurityToken']
-    token.request_id = j['RequestId']
-    token.expiration = oss2.utils.to_unixtime(j['Credentials']['Expiration'], '%Y-%m-%dT%H:%M:%SZ')
-
-    return token
-
+    except  Exception as e:
+        logger.error("生成sts token异常：{}".format(str(e)))
+        return False,str(e)
 
