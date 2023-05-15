@@ -3,8 +3,12 @@
 # @Software: PyCharm
 # @Description:
 import json
+from alibabacloud_sts20150401.client import Client as Sts20150401Client
+from alibabacloud_tea_util.client import Client as UtilClient
+from alibabacloud_tea_openapi import models as open_api_models
+from alibabacloud_tea_util import models as util_models
+from alibabacloud_sts20150401 import models as sts_20150401_models
 
-from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 from aliyunsdkcore import client
 from utils.oss_aliyun import *
 from log_settings import logger
@@ -29,33 +33,43 @@ class StsToken(object):
         self.security_token = ''
         self.request_id = ''
 
+    @staticmethod
+    def create_client(region_id:str) -> Sts20150401Client:
+        """
+        使用AK&SK初始化账号Client
+        @param access_key_id:
+        @param access_key_secret:
+        @return: Client
+        @throws Exception
+        """
+        config = open_api_models.Config(
+            # 必填，您的 AccessKey ID,
+            access_key_id=access_key_id,
+            # 必填，您的 AccessKey Secret,
+            access_key_secret=access_key_secret
+        )
+        # 访问的域名
+        config.endpoint = 'sts.{}.aliyuncs.com'.format(region_id)
+        return Sts20150401Client(config)
 
-def gernate_sts_token(region_id: str)-> bool:
+def gernate_sts_token(region_id: str,from_app_name:str)-> bool:
     """
-    :param region_id:
-    :param access_key_id:
-    :param access_key_secret:
-    :param role_arn:
     :return:
     """
-    clt = client.AcsClient(access_key_id, access_key_secret, region_id)
-    req = AssumeRoleRequest.AssumeRoleRequest()
-
-    req.set_accept_format('json')
-    req.set_RoleArn(sts_role_arn)
-    req.set_RoleSessionName('oss-python-sdk-example')
+    clt = StsToken.create_client(region_id)
+    assume_role_request = sts_20150401_models.AssumeRoleRequest(
+        duration_seconds=3600,
+        role_arn = sts_role_arn,
+        role_session_name= from_app_name
+    )
+    runtime = util_models.RuntimeOptions()
     try:
-        body = clt.do_action_with_exception(req)
-        j = json.loads(oss2.to_unicode(body))
-        token = StsToken()
-        token.access_key_id = j['Credentials']['AccessKeyId']
-        token.access_key_secret = j['Credentials']['AccessKeySecret']
-        token.security_token = j['Credentials']['SecurityToken']
-        token.request_id = j['RequestId']
-        token.expiration = oss2.utils.to_unixtime(j['Credentials']['Expiration'], '%Y-%m-%dT%H:%M:%SZ')
-        return True,token
+        resp= clt.assume_role_with_options(assume_role_request, runtime)
+        return True,UtilClient.to_jsonstring(resp)
 
-    except  Exception as e:
-        logger.error("生成sts token异常：{}".format(str(e)))
-        return False,str(e)
+
+    except Exception as error:
+        UtilClient.assert_as_string(error.message)
+        # logger.error("生成sts token异常：{}".format(str(error.message)))
+        return False,str(error.message)
 

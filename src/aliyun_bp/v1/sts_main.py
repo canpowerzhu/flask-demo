@@ -15,7 +15,8 @@ sts_api_bp = Blueprint('aliyun_oss_sts', __name__)
 def get_sts_token():
     # todo 这里需要校验Region_id 的合理存在问题
     region_id = request.args.get('region_id')
-    gernate_sts_token_res = gernate_sts_token_service(region_id)
+    from_app_name = request.args.get('from_app_name')
+    gernate_sts_token_res = gernate_sts_token_service(region_id,from_app_name)
     return jsonify(gernate_sts_token_res)
 
 
