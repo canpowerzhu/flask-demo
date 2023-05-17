@@ -4,7 +4,7 @@
 # @Description:
 
 
-from flask import Flask,request
+from flask import Flask,request,jsonify
 from log_settings import logger
 import uuid
 from dao import DatabaseConfig
@@ -35,7 +35,16 @@ def create_app(config=None):
             trace_id = str(uuid.uuid4())
         request.trace_id = trace_id
 
-
+    @app.before_request
+    def before():
+        url = request.path
+        # 明确白名单接口地址， 首页、登陆以及注册无需验证
+        pass_list = ['/','/login','/signup']
+        # 这里不做静态资源的限制
+        if url in pass_list:
+            pass
+        else:
+            return jsonify({"code":401,"message":"Full authentication is required to access this resource"})
 
     @app.after_request
     def add_trace_id_to_logs(response):
