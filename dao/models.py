@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(60))
     password = db.Column(db.String(300))
-    is_mfa = db.Column(db.Boolean, unique=True)
+    is_mfa = db.Column(db.Boolean)
     otp_secret_key = db.Column(db.String(120),info="mfa信息")
     is_disabled = db.Column(db.Boolean, info="用户状态,是否禁用")
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
