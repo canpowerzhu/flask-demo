@@ -4,7 +4,7 @@
 # @Description:
 import os.path
 import time
-
+from flask import request
 from loguru import logger
 
 log_path = os.path.join(os.getcwd(), 'logs')

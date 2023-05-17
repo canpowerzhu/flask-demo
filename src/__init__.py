@@ -4,8 +4,9 @@
 # @Description:
 
 
-from flask import Flask
-
+from flask import Flask,request
+from log_settings import logger
+import uuid
 from dao import DatabaseConfig
 from src.aliyun_bp.v1.ali_mail import mail_ali_bp
 
@@ -26,6 +27,21 @@ from dao import db
 def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(DatabaseConfig)
+
+    @app.before_request
+    def add_trace_id():
+        trace_id = request.headers.get('X-Trace-Id')
+        if not trace_id:
+            trace_id = str(uuid.uuid4())
+        request.trace_id = trace_id
+
+
+
+    @app.after_request
+    def add_trace_id_to_logs(response):
+        logger.info('Trace ID in Flask after_request: {trace_id}', trace_id=request.trace_id)
+        return response
+
 
     if config is not None:
         if isinstance(config, dict):

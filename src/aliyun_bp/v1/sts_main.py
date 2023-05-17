@@ -5,7 +5,7 @@
 from flask import Blueprint, request, jsonify
 
 from service.ali_oss_sts_service import gernate_sts_token_service
-from utils.oss_aliyun.sts_token import gernate_sts_token
+from log_settings import logger
 from utils.oss_aliyun.bucket_ops import get_all_bucket
 
 sts_api_bp = Blueprint('aliyun_oss_sts', __name__)
@@ -16,7 +16,8 @@ def get_sts_token():
     # todo 这里需要校验Region_id 的合理存在问题
     region_id = request.args.get('region_id')
     from_app_name = request.args.get('from_app_name')
-    gernate_sts_token_res = gernate_sts_token_service(region_id,from_app_name)
+    gernate_sts_token_res = gernate_sts_token_service(request.trace_id,region_id,from_app_name)
+    logger.info("来自请求：{}；获取临时身份认证信息：{}".format(request.trace_id,gernate_sts_token_res))
     return jsonify(gernate_sts_token_res)
 
 

@@ -70,6 +70,6 @@ def gernate_sts_token(region_id: str,from_app_name:str)-> bool:
 
     except Exception as error:
         UtilClient.assert_as_string(error.message)
-        # logger.error("生成sts token异常：{}".format(str(error.message)))
+        logger.error("生成sts token异常：{}".format(str(error.message)))
         return False,str(error.message)
 
