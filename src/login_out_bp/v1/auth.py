@@ -27,13 +27,13 @@ def profile():
 @login_out_bp.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == "POST":
-        email = request.form.get('email')
+        email_username = request.form.get('email')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-        status=login_user_verify(email,password)
+        status=login_user_verify(email_username,password)
         if status:
-            logger.info("登陆验证成功，生成的token为{}".format(create_token(email,password)))
-            return render_template('verifycode_mfa.html',email=email)
+            logger.info("登陆验证成功，生成的token为{}".format(create_token(email_username,password)))
+            return render_template('verifycode_mfa.html',email=email_username)
         else:
             flash('Please check your login details and try again.')
             return redirect(url_for('login_out_bp.login'))
