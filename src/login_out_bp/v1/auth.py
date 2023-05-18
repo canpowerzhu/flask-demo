@@ -10,7 +10,9 @@ from settings.conf import PrdConfig
 from utils.mfa.mfa_tool import get_qrcode, return_img_stream, google_verify_result
 from log_settings import logger
 from service.user_service import user_reg, login_user_verify
-from utils import create_token
+
+
+from flask_jwt_extended import create_access_token,create_refresh_token
 login_out_bp = Blueprint('login_out_bp', __name__, template_folder=PrdConfig.TEMPLATE_PATH)
 
 
@@ -32,7 +34,7 @@ def login():
         remember = True if request.form.get('remember') else False
         status=login_user_verify(email_username,password)
         if status:
-            logger.info("登陆验证成功，生成的token为{}".format(create_token(email_username,password)))
+            logger.info("登陆验证成功，create_access_token: {},create_refresh_token: {} ".format(create_access_token(identity=email_username),create_refresh_token(identity=email_username)))
             return render_template('verifycode_mfa.html',email=email_username)
         else:
             flash('Please check your login details and try again.')

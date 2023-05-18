@@ -5,6 +5,8 @@
 
 
 from flask import g, Flask,request,jsonify
+from flask_jwt_extended import JWTManager
+
 from log_settings import logger
 import uuid
 from dao import DatabaseConfig
@@ -20,8 +22,9 @@ from src.jenkins_bp.v1.jenkins_job import jenkins_ops_bp
 from src.gitlab_bp.v1.gitlab_funcs import gitlab_bp
 from dao import db
 from settings.conf import PrdConfig
-import jwt
-from jwt import exceptions
+
+
+from flask_jwt_extended import  jwt_required,decode_token
 
 
 
@@ -30,6 +33,11 @@ from jwt import exceptions
 def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(DatabaseConfig)
+    # 设置jwt相关信息
+    app.config['JWT_SECRET_KEY'] = PrdConfig.SALT
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = PrdConfig.JWT_ACCESS_TOKEN_EXPIRES
+    jwt = JWTManager()
+    jwt.init_app(app)
 
     @app.before_request
     def add_trace_id():
@@ -39,42 +47,61 @@ def create_app(config=None):
         request.trace_id = trace_id
 
     @app.before_request
+    @jwt_required(optional=True)
     def before():
         url = request.path
         # 明确白名单接口地址， 首页、登陆以及注册无需验证
         pass_list = ['/','/login','/signup']
         prefix = url.startswith('/mfa')
         # 这里不做静态资源的限制,因为前后端要分离
-        if url in pass_list or prefix:
-            pass
-        else:
-            return jsonify({"code":401,"message":"Full authentication is required to access this resource"})
+        if url not in pass_list or prefix or url.startswith('/verify_mfa_code'):
+            auth_header = request.headers.get('Authorization')
+            # 如果请求头中没有 Authorization 字段，拒绝访问
+            if not auth_header:
+                return jsonify({"code": 401, "message": "Full authentication is required to access this resource-1"})
 
-    @app.before_request
-    def jwt_authentication():
-        """
-        1.获取请求头Authorization中的token
-        2.判断是否以 Bearer开头
-        3.使用jwt模块进行校验
-        4.判断校验结果,成功就提取token中的载荷信息,赋值给g对象保存
-        """
-        auth = request.headers.get('Authorization')
-        if auth and auth.startswith('Bearer '):
-            "提取token 0-6 被Bearer和空格占用 取下标7以后的所有字符"
-            token = auth[7:]
-            "校验token"
-            g.username = None
+            # 不在白名单 而且存在token
+            if auth_header and auth_header.startswith('Bearer '):
+            # "提取token 0-6 被Bearer和空格占用 取下标7以后的所有字符"
+                    token = auth_header[7:]
+                    logger.info("请求的token是{},解析的结果是{}".format(token, decode_token(token)))
             try:
-                "判断token的校验结果"
-                payload = jwt.decode(token, PrdConfig.SALT, algorithms=['HS256'])
-                "获取载荷中的信息赋值给g对象"
-                g.username = payload.get('username')
-            except exceptions.ExpiredSignatureError:  # 'token已失效'
-                g.username = 1
-            except jwt.DecodeError:  # 'token认证失败'
-                g.username = 2
-            except jwt.InvalidTokenError:  # '非法的token'
-                g.username = 3
+                jwt_required()(None)  # 调用 @jwt_required 装饰器来进行令牌验证
+            except Exception as e:
+                # 处理令牌验证失败的情况
+                return jsonify({"code": 401, "message": "Full authentication is required to access this resource-2"})
+
+    #
+    # @jwt.user_loader_callback
+    # def jwt_authentication():
+    #     """
+    #     1.获取请求头Authorization中的token
+    #     2.判断是否以 Bearer开头
+    #     3.使用jwt模块进行校验
+    #     4.判断校验结果,成功就提取token中的载荷信息,赋值给g对象保存
+    #     """
+    #     auth_header = request.headers.get('Authorization')
+    #     # 如果请求头中没有 Authorization 字段，拒绝访问
+    #     if not auth_header:
+    #         return jsonify({"code": 401, "message": "Full authentication is required to access this resource"})
+    #
+    #     if auth_header and auth_header.startswith('Bearer '):
+    #         "提取token 0-6 被Bearer和空格占用 取下标7以后的所有字符"
+    #         token = auth_header[7:]
+    #         "校验token"
+    #         g.username = None
+    #         try:
+    #             "判断token的校验结果"
+    #             payload = jwt.decode(token, PrdConfig.SALT, algorithms=['HS256'])
+    #             "获取载荷中的信息赋值给g对象"
+    #             g.username = payload.get('username')
+    #         except exceptions.ExpiredSignatureError:  # 'token已失效'
+    #             g.username = 1
+    #         except jwt.DecodeError:  # 'token认证失败'
+    #             g.username = 2
+    #         except jwt.InvalidTokenError:  # '非法的token'
+    #             g.username = 3
+
 
     @app.after_request
     def add_trace_id_to_logs(response):
@@ -96,6 +123,7 @@ def setup_app(app):
     @app.before_first_request
     def create_tables():
         db.create_all()
+
     db.init_app(app)
     app.register_blueprint(login_out_bp)
     app.register_blueprint(user_crud_bp,url_prefix="/v1/user")
