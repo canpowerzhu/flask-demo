@@ -43,8 +43,9 @@ def create_app(config=None):
         url = request.path
         # 明确白名单接口地址， 首页、登陆以及注册无需验证
         pass_list = ['/','/login','/signup']
-        # 这里不做静态资源的限制
-        if url in pass_list:
+        prefix = url.startswith('/mfa')
+        # 这里不做静态资源的限制,因为前后端要分离
+        if url in pass_list or prefix:
             pass
         else:
             return jsonify({"code":401,"message":"Full authentication is required to access this resource"})
