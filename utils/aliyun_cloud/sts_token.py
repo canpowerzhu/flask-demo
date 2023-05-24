@@ -5,12 +5,12 @@
 import json
 from alibabacloud_sts20150401.client import Client as Sts20150401Client
 from alibabacloud_tea_util.client import Client as UtilClient
-from alibabacloud_tea_openapi import models as open_api_models
+
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_sts20150401 import models as sts_20150401_models
 
 from aliyunsdkcore import client
-from utils.oss_aliyun import *
+from utils.aliyun_cloud import *
 from log_settings import logger
 
 for param in (access_key_id, access_key_secret, bucket_name, endpoint, sts_role_arn):
@@ -42,13 +42,6 @@ class StsToken(object):
         @return: Client
         @throws Exception
         """
-        config = open_api_models.Config(
-            # 必填，您的 AccessKey ID,
-            access_key_id=access_key_id,
-            # 必填，您的 AccessKey Secret,
-            access_key_secret=access_key_secret
-        )
-        # 访问的域名
         config.endpoint = 'sts.{}.aliyuncs.com'.format(region_id)
         return Sts20150401Client(config)
 

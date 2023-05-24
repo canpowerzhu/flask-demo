@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify
 
 from service.ali_oss_sts_service import gernate_sts_token_service
 from log_settings import logger
-from utils.oss_aliyun.bucket_ops import get_all_bucket
+from utils.aliyun_cloud.bucket_ops import get_all_bucket
 
 sts_api_bp = Blueprint('aliyun_oss_sts', __name__)
 

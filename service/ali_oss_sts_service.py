@@ -4,7 +4,7 @@
 # @Description:
 import json
 from log_settings import logger
-from utils.oss_aliyun.sts_token import gernate_sts_token
+from utils.aliyun_cloud.sts_token import gernate_sts_token
 
 
 def gernate_sts_token_service(trace_id,region_id: str,from_app_name:str) -> dict:
