@@ -6,7 +6,7 @@
 from Crypto.Cipher import AES
 from Crypto import Random
 from binascii import b2a_hex, a2b_hex
-
+from settings.conf import PrdConfig
 
 class KaneCrypto(object):
     def __init__(self, key: bytes, iv: str):
@@ -55,13 +55,5 @@ class KaneCrypto(object):
         crypto = AES.new(self.key, self.mode, self.iv)
         plain_text = crypto.decrypt(a2b_hex(msg))
         return bytes.decode(plain_text).rstrip('\0')
-
-# text = "小小的花园里面挖呀挖呀挖"
-# key = "162CCDE5543E821A".encode('UTF-8')
-# iv = "162CCDE5543E8219"
-# t = KaneCrypto(key,iv)
-# res = t.encrypt(text.encode())
-# print(res)
-# print(t.decrypt(res))
 
 
