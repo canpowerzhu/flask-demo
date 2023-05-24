@@ -11,6 +11,7 @@ from log_settings import logger
 import uuid
 from dao import DatabaseConfig
 from src.aliyun_bp.v1.ali_mail import mail_ali_bp
+from src.asset_bp.v1.wifi_bp import wifi_info_bp
 
 from src.user_bp.v1.user_crud import user_crud_bp
 from src.aliyun_bp.v1.sts_main import sts_api_bp
@@ -51,10 +52,15 @@ def create_app(config=None):
     def before():
         url = request.path
         # 明确白名单接口地址， 首页、登陆以及注册无需验证
-        pass_list = ['/','/login','/signup']
-        prefix = url.startswith('/mfa')
+        # /v1/wifi/send_wifi_pass 这个参数先不做登陆限制
+        pass_list = ['/','/login','/signup','/v1/wifi/get_wifi_pass','/favicon.ico']
+        prefix = url.startswith(tuple(['/mfa','/verify_mfa_code']))
+        # 静态资源白名单
+        static_whitelist = url.endswith(tuple(['.html','.js']))
+
+
         # 这里不做静态资源的限制,因为前后端要分离
-        if url not in pass_list or prefix or url.startswith('/verify_mfa_code'):
+        if url not in pass_list and not prefix and not static_whitelist:
             auth_header = request.headers.get('Authorization')
             # 如果请求头中没有 Authorization 字段，拒绝访问
             if not auth_header:
@@ -71,36 +77,6 @@ def create_app(config=None):
                 # 处理令牌验证失败的情况
                 return jsonify({"code": 401, "message": "Full authentication is required to access this resource-2"})
 
-    #
-    # @jwt.user_loader_callback
-    # def jwt_authentication():
-    #     """
-    #     1.获取请求头Authorization中的token
-    #     2.判断是否以 Bearer开头
-    #     3.使用jwt模块进行校验
-    #     4.判断校验结果,成功就提取token中的载荷信息,赋值给g对象保存
-    #     """
-    #     auth_header = request.headers.get('Authorization')
-    #     # 如果请求头中没有 Authorization 字段，拒绝访问
-    #     if not auth_header:
-    #         return jsonify({"code": 401, "message": "Full authentication is required to access this resource"})
-    #
-    #     if auth_header and auth_header.startswith('Bearer '):
-    #         "提取token 0-6 被Bearer和空格占用 取下标7以后的所有字符"
-    #         token = auth_header[7:]
-    #         "校验token"
-    #         g.username = None
-    #         try:
-    #             "判断token的校验结果"
-    #             payload = jwt.decode(token, PrdConfig.SALT, algorithms=['HS256'])
-    #             "获取载荷中的信息赋值给g对象"
-    #             g.username = payload.get('username')
-    #         except exceptions.ExpiredSignatureError:  # 'token已失效'
-    #             g.username = 1
-    #         except jwt.DecodeError:  # 'token认证失败'
-    #             g.username = 2
-    #         except jwt.InvalidTokenError:  # '非法的token'
-    #             g.username = 3
 
 
     @app.after_request
@@ -134,3 +110,4 @@ def setup_app(app):
     app.register_blueprint(jenkins_ops_bp,url_prefix="/v1/jenkins")
     app.register_blueprint(mail_ali_bp,url_prefix="/v1/ali_cloud/mail")
     app.register_blueprint(gitlab_bp,url_prefix="/v1/gitlab")
+    app.register_blueprint(wifi_info_bp,url_prefix="/v1/wifi")
