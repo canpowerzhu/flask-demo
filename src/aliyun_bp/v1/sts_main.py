@@ -26,3 +26,11 @@ def get_sts_token():
 def get_bucket_info_list():
     bucket_list = get_all_bucket()
     return jsonify({'buckets': bucket_list})
+
+
+
+@sts_api_bp.route('/object_upload', methods=['POST'])
+def upload_object():
+    return jsonify({"code":200,"message":"success", "data":{"access_url":"https://ww.so.om/t.txt"}})
+
+
