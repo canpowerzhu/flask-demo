@@ -27,6 +27,10 @@ class BaseConfig(object):
     # server start param
     SERVER_HOST = config('SERVER_HOST', default='0.0.0.0')
     SERVER_PORT = config('SERVER_PORT', cast=int, default=5001)
+    SALT = config('SALT')
+    AES_KEY = config('AES_KEY')
+    AES_IV = config('AES_KEY')
+    JWT_ACCESS_TOKEN_EXPIRES = config('JWT_ACCESS_TOKEN_EXPIRES',cast=int, default=3600)
     # Response Body struct
     GET_DATA = OrderedDict()
     POST_DATA = OrderedDict()

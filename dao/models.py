@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(60))
     password = db.Column(db.String(300))
-    is_mfa = db.Column(db.Boolean, unique=True)
+    is_mfa = db.Column(db.Boolean)
     otp_secret_key = db.Column(db.String(120),info="mfa信息")
     is_disabled = db.Column(db.Boolean, info="用户状态,是否禁用")
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
@@ -73,6 +73,22 @@ class Domainlist(db.Model):
     name_status = db.Column(db.String(50), info="域名是否有解析")
     expire_date = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
     create_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
+
+
+class WifiInfo(db.Model):
+    __tablename__ = "tbl_wifi_info"
+    id = db.Column(db.Integer, primary_key=True)
+    wifi_name = db.Column(db.String(100), info="wifi名称",unique=True)
+    wifi_status = db.Column(db.Boolean,info="wifi状态",default=True)
+    wifi_asset_status = db.Column(db.Boolean,info="wifi设备状态",default=True)
+    wifi_asset_type = db.Column(db.String(100), info="wifi设备型号")
+    wifi_asset_sn =  db.Column(db.String(100),info="设备序列号")
+    wifi_asset_mac =  db.Column(db.String(100),info="设备Mac地址")
+    wifi_manage_pass = db.Column(db.String(200), info="wifi管理员密码")
+    wifi_connect_pass = db.Column(db.String(200), info="wifi连接密码")
+    create_by = db.Column(db.String(50), info="创建者",default="admin")
+    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
 

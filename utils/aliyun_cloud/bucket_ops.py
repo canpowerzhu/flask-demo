@@ -3,7 +3,7 @@
 # @Software: PyCharm
 # @Description: 获取当前账号下的所有bucket
 import oss2
-from utils.oss_aliyun import access_key_id,access_key_secret
+from utils.aliyun_cloud import access_key_id,access_key_secret
 
 
 def get_all_bucket() -> list:

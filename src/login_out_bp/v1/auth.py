@@ -11,6 +11,8 @@ from utils.mfa.mfa_tool import get_qrcode, return_img_stream, google_verify_resu
 from log_settings import logger
 from service.user_service import user_reg, login_user_verify
 
+
+from flask_jwt_extended import create_access_token,create_refresh_token
 login_out_bp = Blueprint('login_out_bp', __name__, template_folder=PrdConfig.TEMPLATE_PATH)
 
 
@@ -27,12 +29,13 @@ def profile():
 @login_out_bp.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == "POST":
-        email = request.form.get('email')
+        email_username = request.form.get('email')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-        status=login_user_verify(email,password)
+        status=login_user_verify(email_username,password)
         if status:
-            return render_template('verifycode_mfa.html',email=email)
+            logger.info("登陆验证成功，create_access_token: {},create_refresh_token: {} ".format(create_access_token(identity=email_username),create_refresh_token(identity=email_username)))
+            return render_template('verifycode_mfa.html',email=email_username)
         else:
             flash('Please check your login details and try again.')
             return redirect(url_for('login_out_bp.login'))

@@ -24,6 +24,7 @@ def gitlab_user_ops():
 
 
 @gitlab_bp.route("/user", methods=["POST"])
+
 def create_user_ops():
     req_body = request.json
     required_params = {'email', 'password', 'username', 'name'}

@@ -19,13 +19,13 @@ def get_domain_name_user_token():
     return True, response
 
 #批量插入一级域名的信息
-def db_ops_root_domain_bulk(bulk_insert_root_domain_info_dict):
+def db_ops_root_domain_bulk(bulk_insert_root_domain_info_dict:list):
     try:
         db.session.execute(Domainlist.__table__.insert(),bulk_insert_root_domain_info_dict)
         db.session.commit()
     except Exception as e:
         logger.error(e)
-        return False
+        return False, e
 
     return True
 
