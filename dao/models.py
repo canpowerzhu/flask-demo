@@ -6,6 +6,8 @@
 from flask_login import UserMixin
 import datetime
 
+from sqlalchemy import UniqueConstraint
+
 from dao import db
 
 """
@@ -27,7 +29,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(60))
     password = db.Column(db.String(300))
     is_mfa = db.Column(db.Boolean)
-    otp_secret_key = db.Column(db.String(120),info="mfa信息")
+    otp_secret_key = db.Column(db.String(120), info="mfa信息")
     is_disabled = db.Column(db.Boolean, info="用户状态,是否禁用")
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
@@ -47,10 +49,11 @@ class Domainaccount(db.Model):
     username = db.Column(db.String(50), info="域名账户")
     password = db.Column(db.String(50), info="域名账户密码")
     token_name = db.Column(db.String(100), default='', info="令牌名称")
-    token = db.Column(db.String(100),default='', info="令牌")
+    token = db.Column(db.String(100), default='', info="令牌")
     account_code = db.Column(db.String(50), info="域名账户码")
     account_status = db.Column(db.Boolean, info="域名账户是否有域名 1 表示账户下有域名, 0 则没有域名")
-    remark = db.Column(db.String(100),info="备注")
+    remark = db.Column(db.String(100), info="备注")
+
 
 class Domaininfo(db.Model):
     __tablename__ = "tbl_domain_info"
@@ -68,8 +71,8 @@ class Domainlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name_account = db.Column(db.String(100), info="所属账户")
     domain_name = db.Column(db.String(100), info="域名")
-    locked =  db.Column(db.Boolean,info="是否锁定")
-    autorenew_enabled =  db.Column(db.Boolean,info="是否自动续费")
+    locked = db.Column(db.Boolean, info="是否锁定")
+    autorenew_enabled = db.Column(db.Boolean, info="是否自动续费")
     name_status = db.Column(db.String(50), info="域名是否有解析")
     expire_date = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
     create_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
@@ -78,18 +81,76 @@ class Domainlist(db.Model):
 class WifiInfo(db.Model):
     __tablename__ = "tbl_wifi_info"
     id = db.Column(db.Integer, primary_key=True)
-    wifi_name = db.Column(db.String(100), info="wifi名称",unique=True)
-    wifi_status = db.Column(db.Boolean,info="wifi状态",default=True)
-    wifi_asset_status = db.Column(db.Boolean,info="wifi设备状态",default=True)
+    wifi_name = db.Column(db.String(100), info="wifi名称", unique=True)
+    wifi_status = db.Column(db.Boolean, info="wifi状态", default=True)
+    wifi_asset_status = db.Column(db.Boolean, info="wifi设备状态", default=True)
     wifi_asset_type = db.Column(db.String(100), info="wifi设备型号")
-    wifi_asset_sn =  db.Column(db.String(100),info="设备序列号")
-    wifi_asset_mac =  db.Column(db.String(100),info="设备Mac地址")
+    wifi_asset_sn = db.Column(db.String(100), info="设备序列号")
+    wifi_asset_mac = db.Column(db.String(100), info="设备Mac地址")
     wifi_manage_pass = db.Column(db.String(200), info="wifi管理员密码")
     wifi_connect_pass = db.Column(db.String(200), info="wifi连接密码")
-    create_by = db.Column(db.String(50), info="创建者",default="admin")
+    create_by = db.Column(db.String(50), info="创建者", default="admin")
     create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
+## 工单模块
+
+# 工单
+class WorkOrder(db.Model):
+    __tablename__ = "tbl_work_order"
+    id = db.Column(db.Integer, primary_key=True)
+    work_order_name = db.Column(db.String(100), info="工单名称", unique=True)
+    work_order_content = db.Column(db.Text,nullable=True) #工单内容
+    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3)
+    transfer_type = db.Column(db.Integer, info="转派类型 0-内部转派 1-外部转派", nullable=True, default=None)
+    transfer_by = db.Column(db.String(50), info="转派发起人", default="admin")
+    is_aborted = db.Column(db.Boolean, info="是否终止", default=False)
+    create_by = db.Column(db.String(50), info="创建者", default="admin")
+    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
+# 工单附件详情表
+class WorkOderAttachInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    work_order_name_id = db.Column(db.Integer, info="附件资源所属的工单ID")
+    attach_url = db.Column(db.String(50), info="转派发起人", default="admin")
+    # 这里设置附件的访问链接有效期，工单完成后的30天失效 资源进入冷冻期 使用STS模式进行访问控制
+    create_by = db.Column(db.String(50), info="创建者", default="admin")
+    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
+# 工单分类
+class WorkOrderCategory(db.Model):
+    __tablename__ = "tbl_work_order_category"
+    id = db.Column(db.Integer, primary_key=True)
+    work_order_category_name = db.Column(db.String(100), info="工单分类名称")
+    work_order_second_category_name = db.Column(db.String(100), info="二级工单分类名称")
+    create_by = db.Column(db.String(50), info="创建者", default="admin")
+    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+    __table_args__ = (
+        # 主分类和二级分类联合唯一
+        UniqueConstraint('work_order_category_name', 'work_order_second_category_name', name='uix_category'),  # 联合唯一
+        # Index('ix_id_name', 'name', 'email'), #索引
+    )
+
+
+# 工单流程
+class WorkOrderFlow(db.Model):
+    __tablename__ = "tbl_work_order_flow"
+    id = db.Column(db.Integer, primary_key=True)
+    work_order_flow_name = db.Column(db.String(100), info="工单流程名称", unique=True)
+    bind_category = db.Column(db.Integer, info="绑定分类")## 这里创建的时候必须绑定到哪个分类
+    step_one = db.Column(db.Integer, info="预设字段1")  ## 选择对应的人员ID
+    step_two = db.Column(db.Integer, info="预设字段2")  ## 选择对应的人员ID
+    step_three = db.Column(db.Integer, info="预设字段3")  ## 选择对应的人员ID
+    step_four = db.Column(db.Integer, info="预设字段4")  ## 选择对应的人员ID
+    step_five = db.Column(db.Integer, info="预设字段5")  ## 选择对应的人员ID
+    step_six = db.Column(db.Integer, info="预设字段6")  ## 选择对应的人员ID
+    create_by = db.Column(db.String(50), info="创建者", default="admin")
+    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
