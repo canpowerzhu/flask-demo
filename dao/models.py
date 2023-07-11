@@ -128,6 +128,8 @@ class WorkOrderCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     work_order_category_name = db.Column(db.String(100), info="工单分类名称")
     work_order_second_category_name = db.Column(db.String(100), info="二级工单分类名称")
+    status = db.Column(db.Boolean, info="工单分类状态标识", default=False)
+    deleted = db.Column(db.Boolean, info="工单分类逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
     create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
@@ -151,6 +153,8 @@ class WorkOrderFlow(db.Model):
     step_four = db.Column(db.Integer, info="预设字段4")  ## 选择对应的人员ID
     step_five = db.Column(db.Integer, info="预设字段5")  ## 选择对应的人员ID
     step_six = db.Column(db.Integer, info="预设字段6")  ## 选择对应的人员ID
+    status = db.Column(db.Boolean, info="工单流程状态标识", default=False)
+    deleted = db.Column(db.Boolean, info="工单流程逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
     create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
