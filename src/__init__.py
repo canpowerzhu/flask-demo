@@ -21,6 +21,7 @@ from src.domain_bp.v1.name_domain import domain_name_bp
 from src.aliyun_bp.v1.ali_domain import domain_ali_bp
 from src.jenkins_bp.v1.jenkins_job import jenkins_ops_bp
 from src.gitlab_bp.v1.gitlab_funcs import gitlab_bp
+from src.ticket_bp.v1.ticket_ops import ticket_bp
 from dao import db
 from settings.conf import PrdConfig
 
@@ -53,7 +54,7 @@ def create_app(config=None):
         url = request.path
         # 明确白名单接口地址， 首页、登陆以及注册无需验证
         # /v1/wifi/send_wifi_pass 这个参数先不做登陆限制
-        pass_list = ['/','/login','/signup','/v1/wifi/get_wifi_pass','/favicon.ico']
+        pass_list = ['/','/login','/signup','/v1/wifi/get_wifi_pass','/v1/ticket/ticket_category','/favicon.ico']
         prefix = url.startswith(tuple(['/mfa','/verify_mfa_code']))
         # 静态资源白名单
         static_whitelist = url.endswith(tuple(['.html','.js']))
@@ -111,3 +112,4 @@ def setup_app(app):
     app.register_blueprint(mail_ali_bp,url_prefix="/v1/ali_cloud/mail")
     app.register_blueprint(gitlab_bp,url_prefix="/v1/gitlab")
     app.register_blueprint(wifi_info_bp,url_prefix="/v1/wifi")
+    app.register_blueprint(ticket_bp,url_prefix="/v1/ticket")

@@ -113,6 +113,7 @@ class WorkOrder(db.Model):
 
 # 工单附件详情表
 class WorkOderAttachInfo(db.Model):
+    __tablename__ = "tbl_work_order_attchment_info"
     id = db.Column(db.Integer, primary_key=True)
     work_order_name_id = db.Column(db.Integer, info="附件资源所属的工单ID")
     attach_url = db.Column(db.String(50), info="转派发起人", default="admin")
@@ -126,8 +127,9 @@ class WorkOderAttachInfo(db.Model):
 class WorkOrderCategory(db.Model):
     __tablename__ = "tbl_work_order_category"
     id = db.Column(db.Integer, primary_key=True)
-    work_order_category_name = db.Column(db.String(100), info="工单分类名称")
+    work_order_category_name = db.Column(db.String(100), info="工单分类名称",default="默认")
     work_order_second_category_name = db.Column(db.String(100), info="二级工单分类名称")
+    description = db.Column(db.String(500), info="备注描述")
     status = db.Column(db.Boolean, info="工单分类状态标识", default=False)
     deleted = db.Column(db.Boolean, info="工单分类逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")

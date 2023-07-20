@@ -9,7 +9,7 @@ from log_settings import logger
 import re
 
 
-
+# wifi管理请求参数控制
 class WifiData(BaseModel):
     wifi_name: str = Field(..., description="WiFi名称")
     wifi_asset_type: str = Field(..., description="WiFi设备类型")
@@ -36,3 +36,9 @@ class SendWifiPass(BaseModel):
         return v
 
 
+# 流程工单的类目分类
+
+class AddWorkFlowCategory(BaseModel):
+    work_order_category_name: str = Field(..., description="父级目录的名称")
+    work_order_second_category_name: str = Field(..., description="子级分类名称")
+    description: Optional[str]
