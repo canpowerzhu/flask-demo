@@ -6,13 +6,14 @@ import base64
 import json
 
 import oss2
+
 from settings.conf import PrdConfig
 from utils.aliyun_cloud import access_key_id, access_key_secret, bucket_name
 
 
 class OssOpsUpload():
 
-    def __init__(self, bucket_name,project_name):
+    def __init__(self, bucket_name, project_name):
         """
         :param bucket_name: 需要操作的Bucket名称
         :param project_name: 来源子系统的名称
@@ -78,17 +79,15 @@ class OssOpsUpload():
     def ordinary_upload_stream(self, file, oss_file_path: str, **kwargs):
         callback_url = kwargs.get("callback_url")
 
-
         # 是否进行回调的流式上传
-        params_obj = None if callback_url is None else self.upload_callback(callback_url,self.projectName)
+        params_obj = None if callback_url is None else self.upload_callback(callback_url, self.projectName)
 
         bucket = OssOpsUpload.create_oss_client()
         try:
-            bucket.put_object(oss_file_path, file, progress_callback=self.percentage,params=params_obj)
+            bucket.put_object(oss_file_path, file, progress_callback=self.percentage, params=params_obj)
         except Exception as err:
             return False, err
         return True, oss_file_path
-
 
     def percentage(self, consumed_bytes, total_bytes):
         import sys

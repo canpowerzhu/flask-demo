@@ -13,8 +13,7 @@
 
         .form-container input[type="text"],
         .form-container input[type="submit"],
-        .form-container input[type="reset"]
-        {
+        .form-container input[type="reset"] {
             margin: 10px;
         }
 
@@ -24,24 +23,25 @@
     </style>
 </head>
 <body>
-    <div class="form-container">
-         <img src="https://moppowar.oss-ap-southeast-1.aliyuncs.com/midplatform-v2/static/80-48.png"
-                                         alt="" width="80" height="48" border="0"/>
-        <h1>Get Wi-Fi Pass - {{ wifi_name }}</h1>
-        <form method="POST" id="phone_number_form">
-            <label for="phone_number">Phone Number:</label>
-            <input type="text" id="phone_number" name="phone_number" maxlength="11" pattern="\d{11}" required placeholder="Enter 11-digit phone number">
-            <br>
-            {% if error_message %}
-            <div class="error-message">{{ error_message }}</div>
-            {% endif %}
-            <br>
-            <input type="submit" value="Submit" id="submit_button">
-            <input type="reset" value="Reset">
-        </form>
-    </div>
+<div class="form-container">
+    <img alt=""
+         border="0" height="48" src="https://moppowar.oss-ap-southeast-1.aliyuncs.com/midplatform-v2/static/80-48.png" width="80"/>
+    <h1>Get Wi-Fi Pass - {{ wifi_name }}</h1>
+    <form id="phone_number_form" method="POST">
+        <label for="phone_number">Phone Number:</label>
+        <input id="phone_number" maxlength="11" name="phone_number" pattern="\d{11}" placeholder="Enter 11-digit phone number" required
+               type="text">
+        <br>
+        {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
+        {% endif %}
+        <br>
+        <input id="submit_button" type="submit" value="Submit">
+        <input type="reset" value="Reset">
+    </form>
+</div>
 
-    <script>
+<script>
         var phoneNumberForm = document.getElementById("phone_number_form");
         var phoneNumberInput = document.getElementById("phone_number");
         var errorMessage = document.getElementById("error_message");
@@ -98,7 +98,8 @@
                 submitButton.disabled = false;
             }
         });
-    </script>
+
+</script>
 </body>
 
 

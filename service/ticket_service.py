@@ -2,11 +2,13 @@
 # @Time    : 2023/7/7 16:35
 # @Software: PyCharm
 # @Description:
+import json
+
 from flask import request
 
-from dao.ops_ticket import db_ops_add_ticket_category,db_ops_get_ticket_child_category,db_ops_get_ticket_parent_category
+from dao.ops_ticket import db_ops_add_ticket_category, db_ops_get_ticket_child_category, \
+    db_ops_get_ticket_parent_category, db_ops_update_ticket_category
 from log_settings import logger
-
 
 
 class TicketService(object):
@@ -16,13 +18,13 @@ class TicketService(object):
     @staticmethod
     def get_ticket_list(**kwargs):
         if not kwargs:
-            status,res = db_ops_get_ticket_parent_category()
+            status, res = db_ops_get_ticket_parent_category()
             if status:
-                logger.info("来自请求：{}；获取父级分类信息:{}".format(request.trace_id,res))
+                logger.info("来自请求：{}；获取父级分类信息:{}".format(request.trace_id, res))
         else:
             status, res = db_ops_get_ticket_child_category(kwargs['category_parent_name'])
             if status:
-                print("查询 {} 父级目录下的二级的结果是：{}".format(kwargs['category_parent_name'],res))
+                print("查询 {} 父级目录下的二级的结果是：{}".format(kwargs['category_parent_name'], res))
 
         return res
 
@@ -38,9 +40,15 @@ class TicketService(object):
             status = True
         return res, status
 
-    # @staticmethod
-    # def get_parent_category():
-    #     pass
+    @staticmethod
+    def update_ticket(item_id: int, **kwargs):
+        if not kwargs:
+            delete_body = {'blocked': 1}
+            db_ops_update_ticket_category(item_id, delete_body)
+            logger.info("禁用了工单类目，编号是{}，禁用的字段体是{}".format(str(item_id), json.dumps(kwargs)))
 
-    def update_ticket(self):
-        pass
+        else:
+            logger.info("进入更新,更新的请求体是{}".format(json.dumps(kwargs)))
+            # db_ops_update_ticket_category(item_id, delete_body)
+
+        return "OK"

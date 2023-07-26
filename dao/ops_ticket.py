@@ -2,16 +2,16 @@
 # @Time    : 2023/7/11 14:35
 # @Software: PyCharm
 # @Description:
+import json
+from sqlalchemy import and_
+from dao.models import WorkOrderCategory, db
+from log_settings import logger
+
 
 # @Author  : kane.zhu
 # @Time    : 2023/2/24 16:58
 # @Software: PyCharm
 # @Description:
-
-from sqlalchemy import distinct
-
-from dao.models import WorkOrderCategory, db
-from log_settings import logger
 
 
 def db_ops_add_ticket_category(category_data_dict):
@@ -31,7 +31,8 @@ def db_ops_get_ticket_parent_category():
     :return:
     """
     try:
-        parent_category_list = db.session.query(distinct(WorkOrderCategory.work_order_category_name)).all()
+        parent_category_list = db.session.query(WorkOrderCategory).filter(WorkOrderCategory.blocked == '0').distinct(
+            WorkOrderCategory.work_order_category_name).all()
     except Exception as e:
         logger.error(e)
         return False, e
@@ -44,10 +45,27 @@ def db_ops_get_ticket_child_category(parent_category_name):
     :return:
     """
     try:
-        child_category_list = db.session.query(WorkOrderCategory.work_order_second_category_name).filter(
-            WorkOrderCategory.work_order_category_name == parent_category_name).distinct(
-            WorkOrderCategory.work_order_second_category_name).all()
+        child_category_list = db.session.query(WorkOrderCategory.work_order_second_category_name).filter(and_(
+            WorkOrderCategory.work_order_category_name == parent_category_name ,WorkOrderCategory.blocked == "0")).all()
     except Exception as e:
         logger.error(e)
         return False, e
     return True, child_category_list
+
+
+def db_ops_update_ticket_category(id: int, update_data: dict):
+    """
+    更新目录信息，其中包含删除（逻辑删除）
+    :param id: 更新的索引id
+    :param update_data: 新的数据对象
+    :return:
+    """
+    try:
+
+        WorkOrderCategory.query.filter(WorkOrderCategory.id == id).update(update_data)
+        db.session.commit()
+        logger.info("更新数据库，请求体是{}".format(json.dumps(update_data)))
+    except Exception as e:
+        logger.error(e)
+        return False, e
+    return True, None

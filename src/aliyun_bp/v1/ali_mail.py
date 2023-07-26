@@ -5,10 +5,11 @@
 import json
 
 from flask import Blueprint, jsonify, request
-from utils import get_ali_mail_token
-from settings.conf import PrdConfig
-from utils.mail.manage_ali_mail import ali_mail_token
+
 from service.ali_mail_service import AliMailDepartment, AliMailAccount
+from settings.conf import PrdConfig
+from utils import get_ali_mail_token
+from utils.mail.manage_ali_mail import ali_mail_token
 
 mail_ali_bp = Blueprint('mail_ali_bp', __name__)
 
@@ -65,7 +66,7 @@ def mail_account_ops(target_domain):
         data = json.loads(request.data)
         required_params = {'name', 'email', 'mobilePhone', 'departmentId'}
         for account_item in data['account_list']:
-            is_miss_params = True if  required_params & set(account_item.keys()) == required_params else False
+            is_miss_params = True if required_params & set(account_item.keys()) == required_params else False
             if not is_miss_params:
                 return jsonify({"code": 400, "messsage": "misss reuqired params"})
             account_item['passwd'] = PrdConfig.ALI_MAIL_DEFAULT_PASSWD

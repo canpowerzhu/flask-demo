@@ -2,10 +2,12 @@
 # @Time    : 2023/2/24 16:49
 # @Software: PyCharm
 # @Description:
-from werkzeug.security import  generate_password_hash,check_password_hash
-from dao.ops_db_users import db_ops_reg_user,db_ops_get_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
-def user_reg(username,passwd,email,gtoken):
+from dao.ops_db_users import db_ops_reg_user, db_ops_get_user
+
+
+def user_reg(username, passwd, email, gtoken):
     """
     :param username: 注册用户名
     :param passwd: 注册用户原始密码
@@ -25,18 +27,7 @@ def user_reg(username,passwd,email,gtoken):
         return False
 
 
-
-def login_user_verify(email,passwd):
-    hashed_passwd,get_otp_secret_key = db_ops_get_user(email)
+def login_user_verify(email, passwd):
+    hashed_passwd, get_otp_secret_key = db_ops_get_user(email)
     if check_password_hash(hashed_passwd, passwd):
-        return True,get_otp_secret_key
-
-
-
-
-
-
-
-
-
-
+        return True, get_otp_secret_key

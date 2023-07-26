@@ -6,10 +6,11 @@
 <div class="column is-4 is-offset-4">
     <h3 class="title">Verify Code Page</h3>
     <div class="box">
-        <form method="POST" action="/verify_mfa_code/{{email}}">
+        <form action="/verify_mfa_code/{{email}}" method="POST">
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="verify_code" name="verify_code" placeholder="Verify_code" autofocus="">
+                    <input autofocus="" class="input is-large" name="verify_code" placeholder="Verify_code"
+                           type="verify_code">
                 </div>
             </div>
 
