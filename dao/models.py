@@ -100,6 +100,9 @@ class WifiInfo(db.Model):
 class WorkOrder(db.Model):
     __tablename__ = "tbl_work_order"
     id = db.Column(db.Integer, primary_key=True)
+    urgent_level = db.Column(db.Integer, info="紧急程度 1-问题咨询, 2-保障")
+    # 工单使用属于哪个分类 取决tbl_work_order_category这个表
+    work_order_category_id = db.Column(db.Integer, info="选择工单类别的ID")
     work_order_name = db.Column(db.String(100), info="工单名称", unique=True)
     work_order_content = db.Column(db.Text, nullable=True)  # 工单内容
     transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3)
@@ -123,6 +126,8 @@ class WorkOderAttachInfo(db.Model):
     update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
+
+
 # 工单分类
 class WorkOrderCategory(db.Model):
     __tablename__ = "tbl_work_order_category"
@@ -143,12 +148,13 @@ class WorkOrderCategory(db.Model):
     )
 
 
-# 工单流程
+# 工单流程 创建工单是否要绑定流程
 class WorkOrderFlow(db.Model):
     __tablename__ = "tbl_work_order_flow"
     id = db.Column(db.Integer, primary_key=True)
     work_order_flow_name = db.Column(db.String(100), info="工单流程名称", unique=True)
-    bind_category = db.Column(db.Integer, info="绑定分类")  ## 这里创建的时候必须绑定到哪个分类
+    # 工单流程绑定到 取决tbl_work_order_category这个表 。如此依赖就和创建工单的流程对应起来
+    bind_category = db.Column(db.Integer, info="绑定分类")
     step_one = db.Column(db.Integer, info="预设字段1")  ## 选择对应的人员ID
     step_two = db.Column(db.Integer, info="预设字段2")  ## 选择对应的人员ID
     step_three = db.Column(db.Integer, info="预设字段3")  ## 选择对应的人员ID
@@ -158,5 +164,19 @@ class WorkOrderFlow(db.Model):
     status = db.Column(db.Boolean, info="工单流程状态标识", default=False)
     deleted = db.Column(db.Boolean, info="工单流程逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
+    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
+### 系统管理模块
+#### 配置信息表
+class SysConfigInfo(db.Model):
+    __tablename__ = "tbl_sys_config_info"
+    id = db.Column(db.Integer, primary_key=True)
+    config_name = db.Column(db.String(50), info="配置名称", nullable=True)
+    config_key = db.Column(db.String(50), info="配置键", nullable=True)
+    config_value = db.Column(db.String(50), info="配置值", nullable=True)
+    config_group = db.Column(db.String(10), info="分类", nullable=True)
+    description = db.Column(db.String(50), info="备注", nullable=True)
     create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
