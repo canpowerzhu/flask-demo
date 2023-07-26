@@ -3,12 +3,12 @@
 # @Software: PyCharm
 # @Description:
 
+import pymysql
 from flask_sqlalchemy import SQLAlchemy
+
 from settings.conf import PrdConfig
 
-import pymysql
 pymysql.install_as_MySQLdb()
-
 
 db = SQLAlchemy()
 

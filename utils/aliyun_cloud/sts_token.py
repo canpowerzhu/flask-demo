@@ -2,16 +2,13 @@
 # @Time    : 2022/11/12 10:38
 # @Software: PyCharm
 # @Description:
-import json
+from alibabacloud_sts20150401 import models as sts_20150401_models
 from alibabacloud_sts20150401.client import Client as Sts20150401Client
+from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 
-from alibabacloud_tea_util import models as util_models
-from alibabacloud_sts20150401 import models as sts_20150401_models
-
-from aliyunsdkcore import client
-from utils.aliyun_cloud import *
 from log_settings import logger
+from utils.aliyun_cloud import *
 
 for param in (access_key_id, access_key_secret, bucket_name, endpoint, sts_role_arn):
     assert '<' not in param, 'please setup param:' + param
@@ -34,7 +31,7 @@ class StsToken(object):
         self.request_id = ''
 
     @staticmethod
-    def create_client(region_id:str) -> Sts20150401Client:
+    def create_client(region_id: str) -> Sts20150401Client:
         """
         使用AK&SK初始化账号Client
         @param access_key_id:
@@ -45,24 +42,24 @@ class StsToken(object):
         config.endpoint = 'sts.{}.aliyuncs.com'.format(region_id)
         return Sts20150401Client(config)
 
-def gernate_sts_token(region_id: str,from_app_name:str)-> bool:
+
+def gernate_sts_token(region_id: str, from_app_name: str) -> bool:
     """
     :return:
     """
     clt = StsToken.create_client(region_id)
     assume_role_request = sts_20150401_models.AssumeRoleRequest(
         duration_seconds=3600,
-        role_arn = sts_role_arn,
-        role_session_name= from_app_name
+        role_arn=sts_role_arn,
+        role_session_name=from_app_name
     )
     runtime = util_models.RuntimeOptions()
     try:
-        resp= clt.assume_role_with_options(assume_role_request, runtime)
-        return True,UtilClient.to_jsonstring(resp)
+        resp = clt.assume_role_with_options(assume_role_request, runtime)
+        return True, UtilClient.to_jsonstring(resp)
 
 
     except Exception as error:
         UtilClient.assert_as_string(error.message)
         logger.error("生成sts token异常：{}".format(str(error.message)))
-        return False,str(error.message)
-
+        return False, str(error.message)

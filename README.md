@@ -4,10 +4,10 @@
 [![GitHub stars](https://img.shields.io/github/stars/canpowerzhu/flask-demo.svg?style=social&label=Stars)](https://github.com/canpowerzhu/flask-demo/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/canpowerzhu/flask-demo.svg?style=social&label=Fork)](https://github.com/canpowerzhu/flask-demo/network/members)
 
-
 # FAQ
+
 1. celery任务state在windows环境一直处理pending
-    切换模式 -P threads解决
+   切换模式 -P threads解决
     ```
    celery -A tasks.task worker --loglevel=info -P threads
    ```
@@ -28,9 +28,12 @@
 5. 生成二维码报错 No module named 'Image'
    ```shell
    pip3 install pillow==8.2.0
+
 ```
 
 6. 生成二维码  'str' object has no attribute 'write'
    ```
-   需要固定qrcode版本 8.2.0
+
+需要固定qrcode版本 8.2.0
+
 ```

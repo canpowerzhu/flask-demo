@@ -3,10 +3,11 @@
 # @Software: PyCharm
 # @Description: 这里编写处理阿里云邮箱的服务相关
 import json
-from log_settings import logger
-from settings.conf import PrdConfig
 
 import requests
+
+from log_settings import logger
+from settings.conf import PrdConfig
 
 
 class AliMailDepartment(object):
@@ -114,7 +115,6 @@ class AliMailAccount(object):
                              "param": {"accounts": account_list}}
 
         return self.__result_do_account(ali_mail_url, mail_account_body)
-
 
     def __result_do_account(self, ali_mail_url, account_body):
         res = requests.post(url=ali_mail_url, headers=self.ali_mail_header, data=json.dumps(account_body))

@@ -2,11 +2,11 @@
 # @Time    : 2023/4/19 11:47
 # @Software: PyCharm
 # @Description:
-import json
 
 from flask import Blueprint, request, jsonify
-from src.gitlab_bp.v1 import gitlab_obj
+
 from log_settings import logger
+from src.gitlab_bp.v1 import gitlab_obj
 
 gitlab_bp = Blueprint("gitlab_bp", __name__)
 
@@ -24,7 +24,6 @@ def gitlab_user_ops():
 
 
 @gitlab_bp.route("/user", methods=["POST"])
-
 def create_user_ops():
     req_body = request.json
     required_params = {'email', 'password', 'username', 'name'}

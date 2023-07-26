@@ -5,8 +5,8 @@
 
 import gitlab
 
-from settings.conf import PrdConfig
 from log_settings import logger
+from settings.conf import PrdConfig
 
 
 def create_gitlab_obj():

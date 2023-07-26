@@ -31,7 +31,7 @@ class SendMail(object):
         message['To'] = Header(self.receiver)
         message['Subject'] = Header(self.subject, 'utf-8')
         try:
-            mailobj = SMTP_SSL(PrdConfig.EMAIL_HOST,PrdConfig.EMAIL_SMTP_PORT)
+            mailobj = SMTP_SSL(PrdConfig.EMAIL_HOST, PrdConfig.EMAIL_SMTP_PORT)
             mailobj.login(PrdConfig.EMAIL_FROM_ACCOUNT, PrdConfig.EMAIL_FROM_ACCOUNT_PASS)
             mailobj.sendmail(PrdConfig.EMAIL_FROM_ACCOUNT, self.receiver, message.as_string())
             flag = True
@@ -39,25 +39,22 @@ class SendMail(object):
             flag = False
         return flag
 
-    def send_mail(self,body,appendix_file):
+    def send_mail(self, body, appendix_file):
         msg = MIMEMultipart()
         if self.is_attachment and os.path.exists(appendix_file):
             msg.attach(MIMEText(body, 'plain'))
-            attachment = open( appendix_file,'rb')
+            attachment = open(appendix_file, 'rb')
             part = MIMEBase('application', 'octet-stream')
             part.set_payload((attachment).read())
             encoders.encode_base64(part)
             part.add_header('Content-Disposition', "attachment; filename= " + appendix_file)
 
         # 判断是否批量发送
-        receiver = ', '.join(self.receiver) if isinstance(self.receiver,list) else self.receiver
+        receiver = ', '.join(self.receiver) if isinstance(self.receiver, list) else self.receiver
 
         msg.attach(part)
         text = msg.as_string()
         server = smtplib.SMTP_SSL(PrdConfig.EMAIL_HOST, PrdConfig.EMAIL_SMTP_PORT)
-        server.login(PrdConfig.EMAIL_FROM_ACCOUNT,  PrdConfig.EMAIL_FROM_ACCOUNT_PASS)
-        server.sendmail(self.sender,receiver, text)
+        server.login(PrdConfig.EMAIL_FROM_ACCOUNT, PrdConfig.EMAIL_FROM_ACCOUNT_PASS)
+        server.sendmail(self.sender, receiver, text)
         server.quit()
-
-
-

@@ -3,10 +3,12 @@
 # @Software: PyCharm
 # @Description:
 
-from pydantic import BaseModel,Field, validator
-from typing import List,Optional
-from log_settings import logger
 import re
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, validator
+
+from log_settings import logger
 
 
 # wifi管理请求参数控制
@@ -18,9 +20,10 @@ class WifiData(BaseModel):
     wifi_manage_pass: str = Field(..., description="WiFi管理密码")
     wifi_connect_pass: str = Field(..., description="WiFi连接密码")
 
+
 # 增加wifi信息的结构校验
 class BulkWifiBody(BaseModel):
-    wifi_list: List[WifiData] = Field(...,description="校验批量增加wifi的数据校验")
+    wifi_list: List[WifiData] = Field(..., description="校验批量增加wifi的数据校验")
 
 
 class SendWifiPass(BaseModel):

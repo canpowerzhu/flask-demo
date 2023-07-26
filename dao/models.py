@@ -3,9 +3,9 @@
 # @Software: PyCharm
 # @Description:
 
-from flask_login import UserMixin
 import datetime
 
+from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
 
 from dao import db
@@ -101,7 +101,7 @@ class WorkOrder(db.Model):
     __tablename__ = "tbl_work_order"
     id = db.Column(db.Integer, primary_key=True)
     work_order_name = db.Column(db.String(100), info="工单名称", unique=True)
-    work_order_content = db.Column(db.Text,nullable=True) #工单内容
+    work_order_content = db.Column(db.Text, nullable=True)  # 工单内容
     transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3)
     transfer_type = db.Column(db.Integer, info="转派类型 0-内部转派 1-外部转派", nullable=True, default=None)
     transfer_by = db.Column(db.String(50), info="转派发起人", default="admin")
@@ -127,7 +127,7 @@ class WorkOderAttachInfo(db.Model):
 class WorkOrderCategory(db.Model):
     __tablename__ = "tbl_work_order_category"
     id = db.Column(db.Integer, primary_key=True)
-    work_order_category_name = db.Column(db.String(100), info="工单分类名称",default="默认")
+    work_order_category_name = db.Column(db.String(100), info="工单分类名称", default="默认")
     work_order_second_category_name = db.Column(db.String(100), info="二级工单分类名称")
     description = db.Column(db.String(500), info="备注描述")
     # 由之前的status和deleted合并为blocked字段，禁用至灰色。无删除后唯一索引问题
@@ -148,7 +148,7 @@ class WorkOrderFlow(db.Model):
     __tablename__ = "tbl_work_order_flow"
     id = db.Column(db.Integer, primary_key=True)
     work_order_flow_name = db.Column(db.String(100), info="工单流程名称", unique=True)
-    bind_category = db.Column(db.Integer, info="绑定分类")## 这里创建的时候必须绑定到哪个分类
+    bind_category = db.Column(db.Integer, info="绑定分类")  ## 这里创建的时候必须绑定到哪个分类
     step_one = db.Column(db.Integer, info="预设字段1")  ## 选择对应的人员ID
     step_two = db.Column(db.Integer, info="预设字段2")  ## 选择对应的人员ID
     step_three = db.Column(db.Integer, info="预设字段3")  ## 选择对应的人员ID

@@ -4,14 +4,16 @@
 # @Description:
 import json
 
+from aliyunsdkalidns.request.v20150109.DescribeDomainRecordsRequest import DescribeDomainRecordsRequest
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkdomain.request.v20180129.QueryDomainListRequest import QueryDomainListRequest
-from aliyunsdkalidns.request.v20150109.DescribeDomainRecordsRequest import DescribeDomainRecordsRequest
 from flask import current_app
 
 from dao.ops_db_domain import db_ops_root_domain_bulk, db_ops_sub_domain_bulk, db_ops_get_root_domain
-from settings.conf import PrdConfig
 from log_settings import logger
+from settings.conf import PrdConfig
+
+
 #### 阿里云域名相关同步
 
 
@@ -26,18 +28,18 @@ def ali_cloud_domain_sync():
     data = json.loads(response.decode('utf-8'))['Data']['Domain']
     domainlist = []
     for i in range(len(data)):
-            # ali_cloud_domain_record(data[i]['DomainName'], client)
-            single_domain_info_data = {
-                "name_account": PrdConfig.ALI_USERNAME,
-                "domain_name": data[i]['DomainName'],
-                "locked": 0,
-                "autorenew_enabled":  0,
-                "expire_date": data[i]['ExpirationDate'].split(' ')[0],
-                "create_date": data[i]['RegistrationDate'].split(' ')[0],
-            }
-            domainlist.append(single_domain_info_data)
+        # ali_cloud_domain_record(data[i]['DomainName'], client)
+        single_domain_info_data = {
+            "name_account": PrdConfig.ALI_USERNAME,
+            "domain_name": data[i]['DomainName'],
+            "locked": 0,
+            "autorenew_enabled": 0,
+            "expire_date": data[i]['ExpirationDate'].split(' ')[0],
+            "create_date": data[i]['RegistrationDate'].split(' ')[0],
+        }
+        domainlist.append(single_domain_info_data)
     db_ops_root_domain_bulk(domainlist)
-    logger.info("域名账号{}，总共同步{}".format(PrdConfig.ALI_USERNAME,len(data)))
+    logger.info("域名账号{}，总共同步{}".format(PrdConfig.ALI_USERNAME, len(data)))
     return True
 
 
@@ -47,6 +49,7 @@ def direct_async_ali_cloud_record():
         for root_domain_item in root_domain:
             logger.info("开始同步{}域名的解析记录".format(root_domain_item.domain_name))
             ali_cloud_domain_record(root_domain_item.domain_name)
+
 
 def ali_cloud_domain_record(domain):
     """
@@ -72,9 +75,5 @@ def ali_cloud_domain_record(domain):
         }
         record_arr.append(record_info_data)
     logger.info("阿里云域名{}的解析记录数量是{}".format(domain, len(records_list)))
-    #插入有记录的
-    db_ops_sub_domain_bulk(current_app._get_current_object(),record_arr, domain, len(record_arr))
-
-
-
-
+    # 插入有记录的
+    db_ops_sub_domain_bulk(current_app._get_current_object(), record_arr, domain, len(record_arr))

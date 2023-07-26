@@ -2,13 +2,10 @@
 # @Time    : 2022/11/8 16:12
 # @Software: PyCharm
 # @Description:
-import datetime
-import jwt
 import redis
-from flask import g
 
-from settings.conf import PrdConfig
 from log_settings import logger
+from settings.conf import PrdConfig
 
 
 def get_redis_client():
@@ -31,6 +28,3 @@ def get_ali_mail_token():
     ali_mail_token_from_redis = "bearer {}".format(bytes.decode(res))
 
     return ali_mail_token_from_redis
-
-
-

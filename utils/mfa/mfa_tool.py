@@ -4,13 +4,15 @@
 # @Description:
 import base64
 import os
-from log_settings import logger
-import pyotp
-from qrcode import QRCode,constants
-from settings.conf import PrdConfig
-def get_qrcode(secret_key, username):
 
-    filepath = PrdConfig.STATIC_PATH  + os.sep + 'img' + os.sep + secret_key + '.png'
+import pyotp
+from qrcode import QRCode, constants
+
+from settings.conf import PrdConfig
+
+
+def get_qrcode(secret_key, username):
+    filepath = PrdConfig.STATIC_PATH + os.sep + 'img' + os.sep + secret_key + '.png'
     data = pyotp.totp.TOTP(secret_key).provisioning_uri(username, issuer_name="MFA Code")
     print(data)
     qr = QRCode(
@@ -31,8 +33,6 @@ def get_qrcode(secret_key, username):
         return False, None
 
 
-
-
 def return_img_stream(img_local_path):
     """
     工具函数:
@@ -43,9 +43,10 @@ def return_img_stream(img_local_path):
     img_stream = ''
     with open(img_local_path, 'rb') as img_f:
         img_stream = img_f.read()
-        img_stream = base64.b64encode(img_stream) #Base64是一种用64个字符来表示任意二进制数据的方法。
-        img_stream=img_stream.decode()  ##bytes转成字符串
+        img_stream = base64.b64encode(img_stream)  # Base64是一种用64个字符来表示任意二进制数据的方法。
+        img_stream = img_stream.decode()  ##bytes转成字符串
     return img_stream
+
 
 def google_verify_result(secret_key, verifycode):
     t = pyotp.TOTP(secret_key)

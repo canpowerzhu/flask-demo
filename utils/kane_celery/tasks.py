@@ -3,15 +3,15 @@
 # @Software: PyCharm
 # @Description:
 import time
-from log_settings import logger
 
+from flask import current_app
+
+from log_settings import logger
+from src import create_app
+from utils.kane_celery import make_celery
 
 # todo
 # crontab实现定时任务
-
-from utils.kane_celery import make_celery
-from flask import current_app
-from src import create_app
 
 cele = make_celery(create_app())
 

@@ -3,10 +3,10 @@
 # @Software: PyCharm
 # @Description:
 
-from Crypto.Cipher import AES
-from Crypto import Random
 from binascii import b2a_hex, a2b_hex
-from settings.conf import PrdConfig
+
+from Crypto.Cipher import AES
+
 
 class KaneCrypto(object):
     def __init__(self, key: bytes, iv: str):
@@ -27,7 +27,6 @@ class KaneCrypto(object):
             raise TypeError("仅支持 bytearray/bytes 类型!")
         pl = block_size - (len(data) % block_size)
         return data + bytearray([pl for i in range(pl)])
-
 
     def __pre_check_length(self, msg):
         # 这里密钥key 长度必须为16（AES-128）,
@@ -50,10 +49,7 @@ class KaneCrypto(object):
         cipher_text = cryptos.encrypt(msg)
         return bytes.decode(b2a_hex(cipher_text))
 
-
     def decrypt(self, msg: str) -> str:
         crypto = AES.new(self.key, self.mode, self.iv)
         plain_text = crypto.decrypt(a2b_hex(msg))
         return bytes.decode(plain_text).rstrip('\0')
-
-
