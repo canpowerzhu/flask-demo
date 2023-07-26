@@ -130,8 +130,8 @@ class WorkOrderCategory(db.Model):
     work_order_category_name = db.Column(db.String(100), info="工单分类名称",default="默认")
     work_order_second_category_name = db.Column(db.String(100), info="二级工单分类名称")
     description = db.Column(db.String(500), info="备注描述")
-    status = db.Column(db.Boolean, info="工单分类状态标识", default=False)
-    deleted = db.Column(db.Boolean, info="工单分类逻辑删除标识", default=False)
+    # 由之前的status和deleted合并为blocked字段，禁用至灰色。无删除后唯一索引问题
+    blocked = db.Column(db.Boolean, info="工单分类开启选项", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
     create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
