@@ -6,7 +6,7 @@
 from flask import Blueprint, jsonify, request
 
 from log_settings import logger
-from service.ticket_service import TicketService
+from service.ticket_service import TicketService,WorkOrderService
 from settings.schema_models import AddWorkFlowCategory
 
 ticket_bp = Blueprint('ticket_bp', __name__)
@@ -62,3 +62,24 @@ def update_ticket_category(item_id):
         logger.info("来自请求：{}；删除工单系统的分类信息：{}".format(request.trace_id, str(item_id)))
 
     return jsonify({"code": 200, "status": "success", "data": "data"})
+
+
+
+
+
+@ticket_bp.route("/ticket_work_order",methods=["POST"])
+def create_work_order():
+    # 创建工单之前，工单类目必须不能为空 并且工单流程也不能为空
+    work_order_obj = WorkOrderService()
+    if work_order_obj.check_work_flow_count() or work_order_obj.check_category_count():
+        logger.error("来自请求：{}, 工单类目或者工单流程为空".format(request.trace_id))
+        return jsonify({"code": 5001, "status": "failed", "data": "工单类目或者工单流程为空"})
+
+
+@ticket_bp.route("/ticket_work_order_flow",methods=["POST"])
+def create_work_order_flow():
+    #创建工单流程之前，工单类目必须不能为空
+    work_order_obj = WorkOrderService()
+    if  work_order_obj.check_category_count():
+        logger.error("来自请求：{}, 工单类目为空".format(request.trace_id))
+        return jsonify({"code": 5011, "status": "failed", "data": "工单类目为空"})

@@ -4,7 +4,7 @@
 # @Description:
 import json
 from sqlalchemy import and_
-from dao.models import WorkOrderCategory, db
+from dao.models import WorkOrderCategory, db,WorkOrderFlow
 from log_settings import logger
 
 
@@ -69,3 +69,23 @@ def db_ops_update_ticket_category(id: int, update_data: dict):
         logger.error(e)
         return False, e
     return True, None
+
+
+
+# 查询工单目录和工单流程数据
+def check_work_order_category():
+    """
+    校验工单类目是否为空的判断
+    :return:
+    """
+    category_count = WorkOrderCategory.query.count()
+    return  False if category_count < 0 else True
+
+
+def check_work_order_flow():
+    """
+    校验工单使用的流程是否为空的判断
+    :return:
+    """
+    flow_count = WorkOrderFlow.query.count()
+    return False if flow_count < 0 else True

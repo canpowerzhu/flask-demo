@@ -45,3 +45,9 @@ class AddWorkFlowCategory(BaseModel):
     work_order_category_name: str = Field(..., description="父级目录的名称")
     work_order_second_category_name: str = Field(..., description="子级分类名称")
     description: Optional[str]
+
+
+
+class CreateWorkOrder(BaseModel):
+    work_order_name:  str = Field(..., description="工单的名称标题")
+    work_order_content:  str = Field(..., description="工单的内容")
