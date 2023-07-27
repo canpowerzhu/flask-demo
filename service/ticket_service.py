@@ -7,7 +7,8 @@ import json
 from flask import request
 
 from dao.ops_ticket import db_ops_add_ticket_category, db_ops_get_ticket_child_category, \
-    db_ops_get_ticket_parent_category, db_ops_update_ticket_category, check_work_order_category, check_work_order_flow
+    db_ops_get_ticket_parent_category, db_ops_update_ticket_category, check_work_order_category, check_work_order_flow, \
+    db_ops_add_ticket_flow,db_ops_add_work_order
 from log_settings import logger
 
 
@@ -71,3 +72,27 @@ class WorkOrderService(object):
         :return: bool
         """
         return check_work_order_flow()
+
+    @staticmethod
+    def create_work_flow(req_data):
+        try:
+            db_ops_add_ticket_flow(req_data)
+            res = "success"
+            status = True
+        except Exception as e:
+            logger.error("增加工单流程异常:{}".format(e))
+            res = e
+            status = True
+        return res, status
+
+    @staticmethod
+    def create_work_order(req_data):
+        try:
+            db_ops_add_work_order(req_data)
+            res = "success"
+            status = True
+        except Exception as e:
+            logger.error("增加工单数据异常:{}".format(e))
+            res = e
+            status = True
+        return res, status
