@@ -105,7 +105,7 @@ class WorkOrder(db.Model):
     work_order_category_id = db.Column(db.Integer, info="选择工单类别的ID")
     work_order_name = db.Column(db.String(100), info="工单名称", unique=True)
     work_order_content = db.Column(db.Text, nullable=True)  # 工单内容
-    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3)
+    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3) #大于3后 无法转派
     transfer_type = db.Column(db.Integer, info="转派类型 0-内部转派 1-外部转派", nullable=True, default=None)
     transfer_by = db.Column(db.String(50), info="转派发起人", default="admin")
     is_aborted = db.Column(db.Boolean, info="是否终止", default=False)
@@ -119,7 +119,7 @@ class WorkOderAttachInfo(db.Model):
     __tablename__ = "tbl_work_order_attchment_info"
     id = db.Column(db.Integer, primary_key=True)
     work_order_name_id = db.Column(db.Integer, info="附件资源所属的工单ID")
-    attach_url = db.Column(db.String(50), info="转派发起人", default="admin")
+    attach_url = db.Column(db.String(50), info="附件地址")
     # 这里设置附件的访问链接有效期，工单完成后的30天失效 资源进入冷冻期 使用STS模式进行访问控制
     create_by = db.Column(db.String(50), info="创建者", default="admin")
     create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
@@ -155,12 +155,12 @@ class WorkOrderFlow(db.Model):
     work_order_flow_name = db.Column(db.String(100), info="工单流程名称", unique=True)
     # 工单流程绑定到 取决tbl_work_order_category这个表 。如此依赖就和创建工单的流程对应起来
     bind_category = db.Column(db.Integer, info="绑定分类")
-    step_one = db.Column(db.Integer, info="预设字段1")  ## 选择对应的人员ID
-    step_two = db.Column(db.Integer, info="预设字段2")  ## 选择对应的人员ID
-    step_three = db.Column(db.Integer, info="预设字段3")  ## 选择对应的人员ID
-    step_four = db.Column(db.Integer, info="预设字段4")  ## 选择对应的人员ID
-    step_five = db.Column(db.Integer, info="预设字段5")  ## 选择对应的人员ID
-    step_six = db.Column(db.Integer, info="预设字段6")  ## 选择对应的人员ID
+    step_one = db.Column(db.Integer, info="预设字段1",nullable=True)  ## 选择对应的人员ID
+    step_two = db.Column(db.Integer, info="预设字段2",nullable=True)  ## 选择对应的人员ID
+    step_three = db.Column(db.Integer, info="预设字段3",nullable=True)  ## 选择对应的人员ID
+    step_four = db.Column(db.Integer, info="预设字段4",nullable=True)  ## 选择对应的人员ID
+    step_five = db.Column(db.Integer, info="预设字段5",nullable=True)  ## 选择对应的人员ID
+    step_six = db.Column(db.Integer, info="预设字段6",nullable=True)  ## 选择对应的人员ID
     status = db.Column(db.Boolean, info="工单流程状态标识", default=False)
     deleted = db.Column(db.Boolean, info="工单流程逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
