@@ -49,5 +49,18 @@ class AddWorkFlowCategory(BaseModel):
 
 
 class CreateWorkOrder(BaseModel):
+    urgent_level: int  # 紧急程度 0-问题咨询 1-报障
+    work_order_category_id: int  # 绑定到哪个类目
     work_order_name:  str = Field(..., description="工单的名称标题")
     work_order_content:  str = Field(..., description="工单的内容")
+
+class CreateWorkFlow(BaseModel):
+    work_order_flow_name:  str # 工单流程的标题
+    bind_category: int # 绑定到哪个类目
+    step_one:  int # step_one
+    step_two:  int # step_two
+    step_three:  int # step_three
+    step_four: Optional[int]
+    step_five:  Optional[int]
+    step_six:  Optional[int]
+
