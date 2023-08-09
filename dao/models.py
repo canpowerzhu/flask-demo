@@ -6,6 +6,8 @@
 import datetime
 import ipaddress
 
+from marshmallow import Schema,fields,validate
+
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import validates
@@ -182,6 +184,17 @@ class SysConfigInfo(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
+class SysConfigInfoSchema(Schema):
+    """
+    配置信息表  tbl_sys_config_info 序列化与反序列化 校验等的schema
+    """
+    config_name = fields.String()
+    config_key = fields.String()
+    config_value = fields.String()
+    config_group = fields.String()
+    description = fields.String()
+    create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+    update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
 
 
 
@@ -192,10 +205,10 @@ class ProjectInfo(db.Model):
     project_name = db.Column(db.String(50), info="项目名称")
     project_code = db.Column(db.String(10), info="项目名称代码")
     base_image_name = db.Column(db.String(50), info="/base/apline-base-arthas-jdk8:3.1.2")
-    health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s",defautl=30)
-    health_check_timeout = db.Column(db.Integer, info="健康检查超过这个时间，则失败，默认30s",defautl=30)
-    health_check_retries = db.Column(db.Integer, info="连续检查失败次数超过，则失败，默认3",defautl=3)
-    health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s",defautl=30)
+    health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s",default=30)
+    health_check_timeout = db.Column(db.Integer, info="健康检查超过这个时间，则失败，默认30s",default=30)
+    health_check_retries = db.Column(db.Integer, info="连续检查失败次数超过，则失败，默认3",default=3)
+    health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s",default=30)
     project_ico= db.Column(db.String(10), info="项目icon地址，来自oss地址")
     description = db.Column(db.String(50), info="备注", nullable=True)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
@@ -260,6 +273,7 @@ class CloudPlatformInfo(db.Model):
     __tablename__ = "tbl_cloud_platform_info"
     id = db.Column(db.Integer, primary_key=True)
     cloud_platform_name = db.Column(db.String(20), info="公云平台名称")
+    # 这里的值应该是配置信息里面
     cloud_platform_code = db.Column(db.String(20), info="公云平台名称代码 AliCloud、HuaWeiCloud、AwsCloud")
 
     cloud_platform_proxy_active = db.Column(db.Boolean, info="云平台代理是否激活", default=False)
@@ -273,6 +287,7 @@ class CloudPlatformInfo(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
+    @validates('cloud_platform_proxy_host')
     def validate_cloud_platform_proxy_host(self, key, cloud_platform_proxy_host):
         try:
             # Try to create an IP address object from the input

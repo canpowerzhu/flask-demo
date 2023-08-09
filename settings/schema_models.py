@@ -64,3 +64,11 @@ class CreateWorkFlow(BaseModel):
     step_five:  Optional[int]
     step_six:  Optional[int]
 
+
+class CreateConfigItem(BaseModel):
+    config_name: str
+    config_key: str
+    config_value: str
+    config_group: Optional[str]
+    description: Optional[str]
+
