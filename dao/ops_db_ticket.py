@@ -7,13 +7,6 @@ from sqlalchemy import and_
 from dao.models import WorkOrderCategory, db,WorkOrderFlow,WorkOrder
 from log_settings import logger
 
-
-# @Author  : kane.zhu
-# @Time    : 2023/2/24 16:58
-# @Software: PyCharm
-# @Description:
-
-
 def db_ops_add_ticket_category(category_data_dict):
     try:
         db.session.execute(WorkOrderCategory.__table__.insert(), category_data_dict)
