@@ -37,6 +37,7 @@ class User(db.Model, UserMixin):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
+    # 这里将orm对象转换为dict对象 ，也可以使用marshmallow实现
     def to_dict(self):
         model_dict = dict(self.__dict__)
         del model_dict['_sa_instance_state']
@@ -44,6 +45,11 @@ class User(db.Model, UserMixin):
 
     db.to_dict = to_dict
 
+
+class UserSchema(Schema):
+    username = fields.String(required=True)
+    email = fields.Email()
+    password = fields.String(required=True)
 
 class Domainaccount(db.Model):
     __tablename__ = "tbl_domain_account"
@@ -186,7 +192,7 @@ class SysConfigInfo(db.Model):
 
 class SysConfigInfoSchema(Schema):
     """
-    配置信息表  tbl_sys_config_info 序列化与反序列化 校验等的schema
+    配置信  tbl_sys_config_info 序列化与反序列化 校验等的schema
     """
     config_name = fields.String()
     config_key = fields.String()
@@ -211,6 +217,7 @@ class ProjectInfo(db.Model):
     health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s",default=30)
     project_ico= db.Column(db.String(10), info="项目icon地址，来自oss地址")
     description = db.Column(db.String(50), info="备注", nullable=True)
+    project_status = db.Column(db.Boolean, info="工程状态是否禁用，默认", default=False)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
@@ -232,7 +239,6 @@ class ModuleInfo(db.Model):
     dump_oom_status = db.Column(db.Boolean, info="发生OOM时，是否dump", default=False)
     # 设置后 启动参数增加  -XX:HeapDumpPath=/tmp/dump.hprof
     dump_oom_path = db.Column(db.String(50), info="dump文件存储位置", default='/tmp/dump.hprof')
-
     # debug_status, 启动参数增加 -agentlib:jdwp=transport=dt_socket,address={{ debug_status_port }},server=y,suspend=n
     debug_status = db.Column(db.Boolean, info="是否开启debug启动模式", default=False)
     # debug开启后，debug_status_port 这个值不能为空
@@ -241,11 +247,8 @@ class ModuleInfo(db.Model):
     #{"file.encoding":"UTF-8","spring.profiles.active":"prod"}  拼接成"-Dfile.encoding=UTF-8”
     start_define_params = db.Column(db.Text)
     module_memory = db.Column(db.Integer, info="模块启动时的堆栈内存，Xmx Xms")
-
-
-
     project_id = db.Column(db.Integer, info="模块归属项目ID")
-    #
+    module_status = db.Column(db.Boolean, info="模块状态是否禁用，默认", default=False)
     project_cloud_platform = db.Column(db.Integer, info="部署的平云台，意味着走哪个代理")
     description = db.Column(db.String(50), info="备注", nullable=True)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
