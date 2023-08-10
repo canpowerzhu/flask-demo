@@ -10,6 +10,7 @@ __pycache__/
 .Python
 venv/Lib/site-packages/pip/_internal/operations/build/
 develop-eggs/
+static/img/*.png
 dist/
 downloads/
 eggs/
