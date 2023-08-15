@@ -4,15 +4,8 @@
 # @Description:
 import json
 from sqlalchemy import and_
-from dao.models import WorkOrderCategory, db
+from dao.models import WorkOrderCategory, db,WorkOrderFlow,WorkOrder
 from log_settings import logger
-
-
-# @Author  : kane.zhu
-# @Time    : 2023/2/24 16:58
-# @Software: PyCharm
-# @Description:
-
 
 def db_ops_add_ticket_category(category_data_dict):
     try:
@@ -69,3 +62,56 @@ def db_ops_update_ticket_category(id: int, update_data: dict):
         logger.error(e)
         return False, e
     return True, None
+
+
+
+# 查询工单目录和工单流程数据
+def check_work_order_category():
+    """
+    校验工单类目是否为空的判断
+    :return:
+    """
+    category_count = WorkOrderCategory.query.count()
+    print("工单类目数量:{}".format(category_count))
+    return  True if category_count == 0 else False
+
+
+def check_work_order_flow():
+    """
+    校验工单使用的流程是否为空的判断
+    :return:
+    """
+    flow_count = WorkOrderFlow.query.count()
+    print("工单流程数量:{}".format(flow_count))
+    return True  if flow_count == 0 else False
+
+def db_ops_add_ticket_flow(work_order_flow_dict):
+    """
+    工单流程的新建，插入落库
+    :param work_order_flow_dict: 工单流程新建请求体
+    :return:
+    """
+    try:
+        db.session.execute(WorkOrderFlow.__table__.insert(), work_order_flow_dict)
+        db.session.commit()
+    except Exception as e:
+        logger.error(e)
+        return False, e
+
+    return True
+
+
+def db_ops_add_work_order(work_order_dict):
+    """
+    工单入库，sql插入操作
+    :param work_order_dict: 请求体
+    :return:
+    """
+    try:
+        db.session.execute(WorkOrder.__table__.insert(), work_order_dict)
+        db.session.commit()
+    except Exception as e:
+        logger.error(e)
+        return False, e
+
+    return True

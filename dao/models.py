@@ -4,10 +4,13 @@
 # @Description:
 
 import datetime
+import ipaddress
+
+from marshmallow import Schema,fields,ValidationError
 
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
-
+from sqlalchemy.orm import validates
 from dao import db
 
 """
@@ -34,6 +37,7 @@ class User(db.Model, UserMixin):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
+    # 这里将orm对象转换为dict对象 ，也可以使用marshmallow实现
     def to_dict(self):
         model_dict = dict(self.__dict__)
         del model_dict['_sa_instance_state']
@@ -41,6 +45,11 @@ class User(db.Model, UserMixin):
 
     db.to_dict = to_dict
 
+
+class UserSchema(Schema):
+    username = fields.String(required=True)
+    email = fields.Email()
+    password = fields.String(required=True)
 
 class Domainaccount(db.Model):
     __tablename__ = "tbl_domain_account"
@@ -74,8 +83,8 @@ class Domainlist(db.Model):
     locked = db.Column(db.Boolean, info="是否锁定")
     autorenew_enabled = db.Column(db.Boolean, info="是否自动续费")
     name_status = db.Column(db.String(50), info="域名是否有解析")
-    expire_date = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
-    create_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
+    expire_time = db.Column(db.DateTime, default=datetime.datetime.now, info="过期时间")
+    create_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="创建时间")
 
 
 class WifiInfo(db.Model):
@@ -90,8 +99,8 @@ class WifiInfo(db.Model):
     wifi_manage_pass = db.Column(db.String(200), info="wifi管理员密码")
     wifi_connect_pass = db.Column(db.String(200), info="wifi连接密码")
     create_by = db.Column(db.String(50), info="创建者", default="admin")
-    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
-    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
 ## 工单模块
@@ -100,15 +109,18 @@ class WifiInfo(db.Model):
 class WorkOrder(db.Model):
     __tablename__ = "tbl_work_order"
     id = db.Column(db.Integer, primary_key=True)
+    urgent_level = db.Column(db.Integer, info="紧急程度 1-问题咨询, 2-保障")
+    # 工单使用属于哪个分类 取决tbl_work_order_category这个表
+    work_order_category_id = db.Column(db.Integer, info="选择工单类别的ID")
     work_order_name = db.Column(db.String(100), info="工单名称", unique=True)
     work_order_content = db.Column(db.Text, nullable=True)  # 工单内容
-    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3)
+    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3) #大于3后 无法转派
     transfer_type = db.Column(db.Integer, info="转派类型 0-内部转派 1-外部转派", nullable=True, default=None)
     transfer_by = db.Column(db.String(50), info="转派发起人", default="admin")
     is_aborted = db.Column(db.Boolean, info="是否终止", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
-    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
-    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
 # 工单附件详情表
@@ -116,11 +128,13 @@ class WorkOderAttachInfo(db.Model):
     __tablename__ = "tbl_work_order_attchment_info"
     id = db.Column(db.Integer, primary_key=True)
     work_order_name_id = db.Column(db.Integer, info="附件资源所属的工单ID")
-    attach_url = db.Column(db.String(50), info="转派发起人", default="admin")
+    attach_url = db.Column(db.String(50), info="附件地址")
     # 这里设置附件的访问链接有效期，工单完成后的30天失效 资源进入冷冻期 使用STS模式进行访问控制
     create_by = db.Column(db.String(50), info="创建者", default="admin")
-    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
-    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
 
 
 # 工单分类
@@ -133,8 +147,8 @@ class WorkOrderCategory(db.Model):
     # 由之前的status和deleted合并为blocked字段，禁用至灰色。无删除后唯一索引问题
     blocked = db.Column(db.Boolean, info="工单分类开启选项", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
-    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
-    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
     __table_args__ = (
         # 主分类和二级分类联合唯一
@@ -143,20 +157,167 @@ class WorkOrderCategory(db.Model):
     )
 
 
-# 工单流程
+# 工单流程 创建工单是否要绑定流程
 class WorkOrderFlow(db.Model):
     __tablename__ = "tbl_work_order_flow"
     id = db.Column(db.Integer, primary_key=True)
     work_order_flow_name = db.Column(db.String(100), info="工单流程名称", unique=True)
-    bind_category = db.Column(db.Integer, info="绑定分类")  ## 这里创建的时候必须绑定到哪个分类
-    step_one = db.Column(db.Integer, info="预设字段1")  ## 选择对应的人员ID
-    step_two = db.Column(db.Integer, info="预设字段2")  ## 选择对应的人员ID
-    step_three = db.Column(db.Integer, info="预设字段3")  ## 选择对应的人员ID
-    step_four = db.Column(db.Integer, info="预设字段4")  ## 选择对应的人员ID
-    step_five = db.Column(db.Integer, info="预设字段5")  ## 选择对应的人员ID
-    step_six = db.Column(db.Integer, info="预设字段6")  ## 选择对应的人员ID
+    # 工单流程绑定到 取决tbl_work_order_category这个表 。如此依赖就和创建工单的流程对应起来
+    bind_category = db.Column(db.Integer, info="绑定分类")
+    step_one = db.Column(db.Integer, info="预设字段1",nullable=True)  ## 选择对应的人员ID
+    step_two = db.Column(db.Integer, info="预设字段2",nullable=True)  ## 选择对应的人员ID
+    step_three = db.Column(db.Integer, info="预设字段3",nullable=True)  ## 选择对应的人员ID
+    step_four = db.Column(db.Integer, info="预设字段4",nullable=True)  ## 选择对应的人员ID
+    step_five = db.Column(db.Integer, info="预设字段5",nullable=True)  ## 选择对应的人员ID
+    step_six = db.Column(db.Integer, info="预设字段6",nullable=True)  ## 选择对应的人员ID
     status = db.Column(db.Boolean, info="工单流程状态标识", default=False)
     deleted = db.Column(db.Boolean, info="工单流程逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
-    create_date = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
-    update_date = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
+### 系统管理模块
+#### 配置信息表
+class SysConfigInfo(db.Model):
+    __tablename__ = "tbl_sys_config_info"
+    id = db.Column(db.Integer, primary_key=True)
+    config_name = db.Column(db.String(50), info="配置名称", nullable=True)
+    config_key = db.Column(db.String(50), info="配置键", nullable=True)
+    config_value = db.Column(db.String(200), info="配置值", nullable=True)
+    config_group = db.Column(db.String(10), info="分类", nullable=True)
+    description = db.Column(db.String(50), info="备注", nullable=True)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+class SysConfigInfoSchema(Schema):
+    """
+    配置信  tbl_sys_config_info 序列化与反序列化 校验等的schema
+    """
+    config_name = fields.String()
+    config_key = fields.String()
+    config_value = fields.String()
+    config_group = fields.String()
+    description = fields.String()
+    create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+    update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+
+
+
+### 发布模块
+class ProjectInfo(db.Model):
+    __tablename__ = "tbl_project_info"
+    id = db.Column(db.Integer, primary_key=True)
+    project_name = db.Column(db.String(50), info="项目名称")
+    project_code = db.Column(db.String(10), info="项目名称代码")
+    base_image_name = db.Column(db.String(50), info="/base/apline-base-arthas-jdk8:3.1.2")
+    base_image_code = db.Column(db.Integer, info="312")
+    health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s",default=30)
+    health_check_timeout = db.Column(db.Integer, info="健康检查超过这个时间，则失败，默认30s",default=30)
+    health_check_retries = db.Column(db.Integer, info="连续检查失败次数超过，则失败，默认3",default=3)
+    health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s",default=30)
+    project_ico= db.Column(db.String(10), info="项目icon地址，来自oss地址",nullable=True)
+    description = db.Column(db.String(50), info="备注", nullable=True)
+    project_status = db.Column(db.Boolean, info="工程状态是否禁用，默认", default=False)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
+def is_all_upper(s):
+    if not s.isupper():
+        raise ValidationError("project_code only allows uppercase")
+class ProjectInfoSchema(Schema):
+    project_name = fields.String(required=True,error_messages={"required":"project_name is required"})
+    project_code = fields.String(required=True,
+                                 validate=is_all_upper,
+                                 error_messages={"required":{"message":"project_code required","code":400}})
+    base_image_name = fields.String(required=True)
+    base_image_code = fields.Integer(required=True)
+    health_check_interval = fields.Integer()
+    health_check_retries = fields.Integer()
+    health_check_start_period = fields.Integer()
+    project_ico = fields.String(required=True)
+    description = fields.String()
+    project_status = fields.Boolean()
+    create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+    update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+
+
+class ModuleInfo(db.Model):
+    __tablename__ = "tbl_module_info"
+    id = db.Column(db.Integer, primary_key=True)
+    module_name = db.Column(db.String(50), info="模块名称")
+    module_package_name = db.Column(db.String(50), info="模块包名称")
+    module_rel_path = db.Column(db.String(50), info="模块包的相对路径")
+    module_env_pairs = db.Column(db.Text) #环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
+    module_port_pairs = db.Column(db.Text) #端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
+    module_host_pairs = db.Column(db.Text) #主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
+    ## 目录挂载解析---json字符串
+    # {"/data/logs/{module_name}/logs": "/mnt/logs",
+    # "/data/app/{module_name}/{module_package_name}":"/mnt/scrm-bus-server.jar"
+    # }
+    module_volumes_pairs = db.Column(db.Text)
+    # 当dump_oom_status为True, 启动参数增加 -XX:+HeapDumpOnOutOfMemoryError
+    dump_oom_status = db.Column(db.Boolean, info="发生OOM时，是否dump", default=False)
+    # 设置后 启动参数增加  -XX:HeapDumpPath=/tmp/dump.hprof
+    dump_oom_path = db.Column(db.String(50), info="dump文件存储位置", default='/tmp/dump.hprof')
+    # debug_status, 启动参数增加 -agentlib:jdwp=transport=dt_socket,address={{ debug_status_port }},server=y,suspend=n
+    debug_status = db.Column(db.Boolean, info="是否开启debug启动模式", default=False)
+    # debug开启后，debug_status_port 这个值不能为空
+    debug_status_port = db.Column(db.String(5), info="开启debug时的端口")
+    # 启动的自定义参数 存储json类型
+    #{"file.encoding":"UTF-8","spring.profiles.active":"prod"}  拼接成"-Dfile.encoding=UTF-8”
+    start_define_params = db.Column(db.Text)
+    module_memory = db.Column(db.Integer, info="模块启动时的堆栈内存，Xmx Xms")
+    project_id = db.Column(db.Integer, info="模块归属项目ID")
+    module_status = db.Column(db.Boolean, info="模块状态是否禁用，默认", default=False)
+    project_cloud_platform = db.Column(db.Integer, info="部署的平云台，意味着走哪个代理")
+    description = db.Column(db.String(50), info="备注", nullable=True)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+    # 当开启dump后，必须输入dump文件的存储路径
+    @validates('dump_oom_status')
+    def validates_dump_oom_path(self,key,dump_oom_status):
+        if dump_oom_status and not self.dump_oom_path:
+            raise  ValueError("validates_dump_oom_path field cannot be empty when dump_oom_status is True.")
+
+        return dump_oom_status
+
+
+    # 当开启debug后，debug_status_port不能为空
+    @validates('debug_status')
+    def validates_debug_status_port(self, key, debug_status):
+        if debug_status and not self.debug_status_port:
+            raise ValueError("debug_status_port field cannot be empty when debug_status is True.")
+
+        return debug_status
+
+
+class CloudPlatformInfo(db.Model):
+    __tablename__ = "tbl_cloud_platform_info"
+    id = db.Column(db.Integer, primary_key=True)
+    cloud_platform_name = db.Column(db.String(20), info="公云平台名称")
+    # 这里的值应该是配置信息里面
+    cloud_platform_code = db.Column(db.String(20), info="公云平台名称代码 AliCloud、HuaWeiCloud、AwsCloud")
+
+    cloud_platform_proxy_active = db.Column(db.Boolean, info="云平台代理是否激活", default=False)
+    cloud_platform_proxy_host = db.Column(db.String(10), info="代理主机地址")
+    cloud_platform_proxy_port = db.Column(db.String(5), info="代理主机端口")
+    cloud_platform_proxy_username = db.Column(db.String(10), info="代理主机登陆用户名")
+    # 密码和密钥可以同时存在
+    cloud_platform_proxy_password = db.Column(db.String(10), info="代理主机SSH密码")
+    cloud_platform_proxy_ksa_key = db.Column(db.String(1000), info="代理主机SSH密钥")
+    description = db.Column(db.String(50), info="备注", nullable=True)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+    @validates('cloud_platform_proxy_host')
+    def validate_cloud_platform_proxy_host(self, key, cloud_platform_proxy_host):
+        try:
+            # Try to create an IP address object from the input
+           ipaddress.ip_address(cloud_platform_proxy_host)
+        except ValueError:
+            # If the input is not a valid IP address, raise a ValueError
+            raise ValueError(f"{key} field must be a valid IPv4 or IPv6 address.")
+        return cloud_platform_proxy_host

@@ -25,6 +25,9 @@ from src.jenkins_bp.v1.jenkins_job import jenkins_ops_bp
 from src.login_out_bp.v1.auth import login_out_bp
 from src.ticket_bp.v1.ticket_ops import ticket_bp
 from src.user_bp.v1.user_crud import user_crud_bp
+from src.sys_config_bp.v1.sys_config_funcs import sysconfig_bp
+
+from flask_marshmallow import Marshmallow
 
 
 def create_app(config=None):
@@ -36,6 +39,9 @@ def create_app(config=None):
     jwt = JWTManager()
     jwt.init_app(app)
 
+    # 增加marshmallow使用 序列化、反序列化 数据字段校验功能
+    ma = Marshmallow()
+    ma.init_app(app)
     @app.before_request
     def add_trace_id():
         trace_id = request.headers.get('X-Trace-Id')
@@ -104,3 +110,4 @@ def setup_app(app):
     app.register_blueprint(gitlab_bp, url_prefix="/v1/gitlab")
     app.register_blueprint(wifi_info_bp, url_prefix="/v1/wifi")
     app.register_blueprint(ticket_bp, url_prefix="/v1/ticket")
+    app.register_blueprint(sysconfig_bp, url_prefix="/v1/sysconfig")
