@@ -6,7 +6,7 @@
 import datetime
 import ipaddress
 
-from marshmallow import Schema,fields,validate
+from marshmallow import Schema,fields,ValidationError
 
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
@@ -184,7 +184,7 @@ class SysConfigInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     config_name = db.Column(db.String(50), info="配置名称", nullable=True)
     config_key = db.Column(db.String(50), info="配置键", nullable=True)
-    config_value = db.Column(db.String(50), info="配置值", nullable=True)
+    config_value = db.Column(db.String(200), info="配置值", nullable=True)
     config_group = db.Column(db.String(10), info="分类", nullable=True)
     description = db.Column(db.String(50), info="备注", nullable=True)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
@@ -211,15 +211,37 @@ class ProjectInfo(db.Model):
     project_name = db.Column(db.String(50), info="项目名称")
     project_code = db.Column(db.String(10), info="项目名称代码")
     base_image_name = db.Column(db.String(50), info="/base/apline-base-arthas-jdk8:3.1.2")
+    base_image_code = db.Column(db.Integer, info="312")
     health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s",default=30)
     health_check_timeout = db.Column(db.Integer, info="健康检查超过这个时间，则失败，默认30s",default=30)
     health_check_retries = db.Column(db.Integer, info="连续检查失败次数超过，则失败，默认3",default=3)
     health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s",default=30)
-    project_ico= db.Column(db.String(10), info="项目icon地址，来自oss地址")
+    project_ico= db.Column(db.String(10), info="项目icon地址，来自oss地址",nullable=True)
     description = db.Column(db.String(50), info="备注", nullable=True)
     project_status = db.Column(db.Boolean, info="工程状态是否禁用，默认", default=False)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
+def is_all_upper(s):
+    if not s.isupper():
+        raise ValidationError("project_code only allows uppercase")
+class ProjectInfoSchema(Schema):
+    project_name = fields.String(required=True,error_messages={"required":"project_name is required"})
+    project_code = fields.String(required=True,
+                                 validate=is_all_upper,
+                                 error_messages={"required":{"message":"project_code required","code":400}})
+    base_image_name = fields.String(required=True)
+    base_image_code = fields.Integer(required=True)
+    health_check_interval = fields.Integer()
+    health_check_retries = fields.Integer()
+    health_check_start_period = fields.Integer()
+    project_ico = fields.String(required=True)
+    description = fields.String()
+    project_status = fields.Boolean()
+    create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+    update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+
 
 class ModuleInfo(db.Model):
     __tablename__ = "tbl_module_info"
