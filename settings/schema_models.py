@@ -72,3 +72,21 @@ class CreateConfigItem(BaseModel):
     config_group: Optional[str]
     description: Optional[str]
 
+
+
+class CreateProjectItem(BaseModel):
+    """
+    创建项目工程信息 请求体
+    """
+    project_name: str
+    project_code: str
+    base_image_name: str
+    health_check_interval: int
+    health_check_timeout: int
+    health_check_retries: int
+    health_check_start_period: int
+    project_ico: str
+    description: Optional[str]
+
+
+

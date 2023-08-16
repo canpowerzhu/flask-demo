@@ -6,12 +6,13 @@
 import datetime
 import ipaddress
 
-from marshmallow import Schema,fields,ValidationError
+from marshmallow import Schema, fields, ValidationError, post_load, validate
 
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import validates
 from dao import db
+from utils.transfer_to_pinyin import words_transfer_to_letter
 
 """
 如果你将模型类定义在单独的模块中，那么必须在调用db.create_all()之前导入相应的模块，
@@ -184,8 +185,8 @@ class SysConfigInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     config_name = db.Column(db.String(50), info="配置名称", nullable=True)
     config_key = db.Column(db.String(50), info="配置键", nullable=True)
-    config_value = db.Column(db.String(200), info="配置值", nullable=True)
-    config_group = db.Column(db.String(10), info="分类", nullable=True)
+    config_value = db.Column(db.String(300), info="配置值", nullable=True)
+    config_group = db.Column(db.String(20), info="分类", nullable=True)
     description = db.Column(db.String(50), info="备注", nullable=True)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
@@ -209,7 +210,7 @@ class ProjectInfo(db.Model):
     __tablename__ = "tbl_project_info"
     id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.String(50), info="项目名称")
-    project_code = db.Column(db.String(10), info="项目名称代码")
+    project_code = db.Column(db.String(100), info="项目名称代码")
     base_image_name = db.Column(db.String(50), info="/base/apline-base-arthas-jdk8:3.1.2")
     base_image_code = db.Column(db.Integer, info="312")
     health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s",default=30)
@@ -228,19 +229,32 @@ def is_all_upper(s):
         raise ValidationError("project_code only allows uppercase")
 class ProjectInfoSchema(Schema):
     project_name = fields.String(required=True,error_messages={"required":"project_name is required"})
-    project_code = fields.String(required=True,
-                                 validate=is_all_upper,
-                                 error_messages={"required":{"message":"project_code required","code":400}})
+    project_code = fields.String(validate=is_all_upper)
     base_image_name = fields.String(required=True)
-    base_image_code = fields.Integer(required=True)
-    health_check_interval = fields.Integer()
-    health_check_retries = fields.Integer()
-    health_check_start_period = fields.Integer()
+    base_image_code = fields.Integer(dump_only=True)
+    health_check_interval = fields.Integer(validate.Range(min=10,max=60))
+    health_check_retries = fields.Integer(validate.Range(min=3,max=5))
+    health_check_start_period = fields.Integer(validate.Range(min=60,max=120))
     project_ico = fields.String(required=True)
     description = fields.String()
     project_status = fields.Boolean()
     create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
     update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+
+    @post_load
+    def calucate_version_code(self, item,**kwargs):
+        print("转换数据{}".format(item))
+        base_image_name = item['base_image_name']
+        if base_image_name:
+            version_parts = base_image_name.split('.')
+            base_image_code = int(''.join(version_parts))
+            item['base_image_code'] = base_image_code
+
+        if 'project_code' not in item or item['project_code'] is None :
+            project_name = item['project_name']
+            item['project_code'] = words_transfer_to_letter(project_name)
+
+        return item
 
 
 class ModuleInfo(db.Model):

@@ -26,6 +26,7 @@ from src.login_out_bp.v1.auth import login_out_bp
 from src.ticket_bp.v1.ticket_ops import ticket_bp
 from src.user_bp.v1.user_crud import user_crud_bp
 from src.sys_config_bp.v1.sys_config_funcs import sysconfig_bp
+from src.sys_config_bp.v1.project_module_funcs import project_module_bp
 
 from flask_marshmallow import Marshmallow
 
@@ -111,3 +112,4 @@ def setup_app(app):
     app.register_blueprint(wifi_info_bp, url_prefix="/v1/wifi")
     app.register_blueprint(ticket_bp, url_prefix="/v1/ticket")
     app.register_blueprint(sysconfig_bp, url_prefix="/v1/sysconfig")
+    app.register_blueprint(project_module_bp, url_prefix="/v1/project")
