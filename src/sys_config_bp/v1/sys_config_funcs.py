@@ -27,7 +27,8 @@ def get_config_info():
     config_key_value = request.args.get('config_key') if request.args.get('config_key') else None
     config_group_value = request.args.get('config_group') if request.args.get('config_group') else None
 
-    status, result = get_config_list(config_key=config_key_value,config_name=config_name_value,config_group=config_group_value)
+    status, result = get_config_list(config_key=config_key_value, config_name=config_name_value,
+                                     config_group=config_group_value)
     return generate_response(CustomStatusCode.OK, result) if status else generate_response(
         CustomStatusCode.INTERNAL_SERVER_ERROR)
 

@@ -2,12 +2,13 @@
 # @Time    : 2023/2/24 16:49
 # @Software: PyCharm
 # @Description:
+from flask import request
+from marshmallow import ValidationError, pprint
 from werkzeug.security import generate_password_hash, check_password_hash
-from marshmallow import ValidationError,pprint
+
 from dao.models import UserSchema
 from dao.ops_db_users import db_ops_reg_user, db_ops_get_user
 from log_settings import logger
-from flask import request
 
 
 def user_reg(username, passwd, email, gtoken):
@@ -28,7 +29,7 @@ def user_reg(username, passwd, email, gtoken):
     try:
         UserSchema(many=True).load(user_reg_data)
     except ValidationError as err:
-        logger.error("来自请求：{}, 校验字段异常: {}".format(request.trace_id,err.messages))
+        logger.error("来自请求：{}, 校验字段异常: {}".format(request.trace_id, err.messages))
         pprint(err.messages)
 
     if not db_ops_reg_user(user_reg_data):

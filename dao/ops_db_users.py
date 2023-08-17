@@ -3,7 +3,7 @@
 # @Software: PyCharm
 # @Description:
 
-from sqlalchemy import or_,and_
+from sqlalchemy import or_
 
 from dao.models import User, db
 from log_settings import logger
