@@ -25,11 +25,13 @@
 <body>
 <div class="form-container">
     <img alt=""
-         border="0" height="48" src="https://moppowar.oss-ap-southeast-1.aliyuncs.com/midplatform-v2/static/80-48.png" width="80"/>
+         border="0" height="48" src="https://moppowar.oss-ap-southeast-1.aliyuncs.com/midplatform-v2/static/80-48.png"
+         width="80"/>
     <h1>Get Wi-Fi Pass - {{ wifi_name }}</h1>
     <form id="phone_number_form" method="POST">
         <label for="phone_number">Phone Number:</label>
-        <input id="phone_number" maxlength="11" name="phone_number" pattern="\d{11}" placeholder="Enter 11-digit phone number" required
+        <input id="phone_number" maxlength="11" name="phone_number" pattern="\d{11}"
+               placeholder="Enter 11-digit phone number" required
                type="text">
         <br>
         {% if error_message %}
@@ -98,6 +100,7 @@
                 submitButton.disabled = false;
             }
         });
+
 
 </script>
 </body>

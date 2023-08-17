@@ -23,10 +23,10 @@ status_message = {
 }
 
 
-def generate_response(status_code,data=None,message=None):
+def generate_response(status_code, data=None, message=None):
     response = {
         'status': status_code,
-        'message': message if message else status_message.get(status_code,''),
+        'message': message if message else status_message.get(status_code, ''),
         'data': data
     }
-    return  jsonify(response),status_code
+    return jsonify(response), status_code

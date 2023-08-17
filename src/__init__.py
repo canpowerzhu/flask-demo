@@ -9,6 +9,7 @@ import uuid
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, decode_token
+from flask_marshmallow import Marshmallow
 
 from dao import DatabaseConfig
 from dao import db
@@ -23,12 +24,10 @@ from src.domain_bp.v1.name_domain import domain_name_bp
 from src.gitlab_bp.v1.gitlab_funcs import gitlab_bp
 from src.jenkins_bp.v1.jenkins_job import jenkins_ops_bp
 from src.login_out_bp.v1.auth import login_out_bp
+from src.sys_config_bp.v1.project_module_funcs import project_module_bp
+from src.sys_config_bp.v1.sys_config_funcs import sysconfig_bp
 from src.ticket_bp.v1.ticket_ops import ticket_bp
 from src.user_bp.v1.user_crud import user_crud_bp
-from src.sys_config_bp.v1.sys_config_funcs import sysconfig_bp
-from src.sys_config_bp.v1.project_module_funcs import project_module_bp
-
-from flask_marshmallow import Marshmallow
 
 
 def create_app(config=None):
@@ -43,6 +42,7 @@ def create_app(config=None):
     # 增加marshmallow使用 序列化、反序列化 数据字段校验功能
     ma = Marshmallow()
     ma.init_app(app)
+
     @app.before_request
     def add_trace_id():
         trace_id = request.headers.get('X-Trace-Id')

@@ -6,9 +6,9 @@
 from xpinyin import Pinyin
 
 
-#初始化拼音对象
+# 初始化拼音对象
 
-def words_transfer_to_letter(words: str)-> str:
+def words_transfer_to_letter(words: str) -> str:
     """
     将汉字转换为以_拼接的全拼大写字母
     例如：你好-> NI_HAO
@@ -21,5 +21,3 @@ def words_transfer_to_letter(words: str)-> str:
     return result
 
 # print(words_transfer_to_letter("销售宝"))
-
-
