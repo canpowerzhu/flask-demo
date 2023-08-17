@@ -6,11 +6,11 @@
 import datetime
 import ipaddress
 
-from marshmallow import Schema, fields, ValidationError, post_load, validate
-
 from flask_login import UserMixin
+from marshmallow import Schema, fields, ValidationError, post_load, validate
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import validates
+
 from dao import db
 from utils.transfer_to_pinyin import words_transfer_to_letter
 
@@ -51,6 +51,7 @@ class UserSchema(Schema):
     username = fields.String(required=True)
     email = fields.Email()
     password = fields.String(required=True)
+
 
 class Domainaccount(db.Model):
     __tablename__ = "tbl_domain_account"
@@ -115,7 +116,7 @@ class WorkOrder(db.Model):
     work_order_category_id = db.Column(db.Integer, info="选择工单类别的ID")
     work_order_name = db.Column(db.String(100), info="工单名称", unique=True)
     work_order_content = db.Column(db.Text, nullable=True)  # 工单内容
-    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3) #大于3后 无法转派
+    transfer_max_count = db.Column(db.Integer, info="工单允许转派的最大次数", default=3)  # 大于3后 无法转派
     transfer_type = db.Column(db.Integer, info="转派类型 0-内部转派 1-外部转派", nullable=True, default=None)
     transfer_by = db.Column(db.String(50), info="转派发起人", default="admin")
     is_aborted = db.Column(db.Boolean, info="是否终止", default=False)
@@ -134,8 +135,6 @@ class WorkOderAttachInfo(db.Model):
     create_by = db.Column(db.String(50), info="创建者", default="admin")
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
-
-
 
 
 # 工单分类
@@ -165,12 +164,12 @@ class WorkOrderFlow(db.Model):
     work_order_flow_name = db.Column(db.String(100), info="工单流程名称", unique=True)
     # 工单流程绑定到 取决tbl_work_order_category这个表 。如此依赖就和创建工单的流程对应起来
     bind_category = db.Column(db.Integer, info="绑定分类")
-    step_one = db.Column(db.Integer, info="预设字段1",nullable=True)  ## 选择对应的人员ID
-    step_two = db.Column(db.Integer, info="预设字段2",nullable=True)  ## 选择对应的人员ID
-    step_three = db.Column(db.Integer, info="预设字段3",nullable=True)  ## 选择对应的人员ID
-    step_four = db.Column(db.Integer, info="预设字段4",nullable=True)  ## 选择对应的人员ID
-    step_five = db.Column(db.Integer, info="预设字段5",nullable=True)  ## 选择对应的人员ID
-    step_six = db.Column(db.Integer, info="预设字段6",nullable=True)  ## 选择对应的人员ID
+    step_one = db.Column(db.Integer, info="预设字段1", nullable=True)  ## 选择对应的人员ID
+    step_two = db.Column(db.Integer, info="预设字段2", nullable=True)  ## 选择对应的人员ID
+    step_three = db.Column(db.Integer, info="预设字段3", nullable=True)  ## 选择对应的人员ID
+    step_four = db.Column(db.Integer, info="预设字段4", nullable=True)  ## 选择对应的人员ID
+    step_five = db.Column(db.Integer, info="预设字段5", nullable=True)  ## 选择对应的人员ID
+    step_six = db.Column(db.Integer, info="预设字段6", nullable=True)  ## 选择对应的人员ID
     status = db.Column(db.Boolean, info="工单流程状态标识", default=False)
     deleted = db.Column(db.Boolean, info="工单流程逻辑删除标识", default=False)
     create_by = db.Column(db.String(50), info="创建者", default="admin")
@@ -191,6 +190,7 @@ class SysConfigInfo(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
+
 class SysConfigInfoSchema(Schema):
     """
     配置信  tbl_sys_config_info 序列化与反序列化 校验等的schema
@@ -204,20 +204,20 @@ class SysConfigInfoSchema(Schema):
     update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
 
 
-
 ### 发布模块
 class ProjectInfo(db.Model):
     __tablename__ = "tbl_project_info"
     id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.String(50), info="项目名称")
     project_code = db.Column(db.String(100), info="项目名称代码")
+    project_repo = db.Column(db.String(200), info="项目仓库地址")
     base_image_name = db.Column(db.String(50), info="/base/apline-base-arthas-jdk8:3.1.2")
     base_image_code = db.Column(db.Integer, info="312")
-    health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s",default=30)
-    health_check_timeout = db.Column(db.Integer, info="健康检查超过这个时间，则失败，默认30s",default=30)
-    health_check_retries = db.Column(db.Integer, info="连续检查失败次数超过，则失败，默认3",default=3)
-    health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s",default=30)
-    project_ico= db.Column(db.String(10), info="项目icon地址，来自oss地址",nullable=True)
+    health_check_interval = db.Column(db.Integer, info="两次健康检查间隔，默认30s", default=30)
+    health_check_timeout = db.Column(db.Integer, info="健康检查超过这个时间，则失败，默认30s", default=30)
+    health_check_retries = db.Column(db.Integer, info="连续检查失败次数超过，则失败，默认3", default=3)
+    health_check_start_period = db.Column(db.Integer, info="应用初始化时间，启动过程 健康检查不计入，默认30s", default=30)
+    project_ico = db.Column(db.String(10), info="项目icon地址，来自oss地址", nullable=True)
     description = db.Column(db.String(50), info="备注", nullable=True)
     project_status = db.Column(db.Boolean, info="工程状态是否禁用，默认", default=False)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
@@ -227,14 +227,22 @@ class ProjectInfo(db.Model):
 def is_all_upper(s):
     if not s.isupper():
         raise ValidationError("project_code only allows uppercase")
+
+
 class ProjectInfoSchema(Schema):
-    project_name = fields.String(required=True,error_messages={"required":"project_name is required"})
+    project_name = fields.String(required=True, error_messages={"required": "project_name is required"})
     project_code = fields.String(validate=is_all_upper)
+    project_repo = fields.URL(required=True,
+                              error_messages={"required": "project_repo is required",
+                                              "invalid": "Please enter the content in URL format"})
     base_image_name = fields.String(required=True)
     base_image_code = fields.Integer(dump_only=True)
-    health_check_interval = fields.Integer(validate=validate.Range(min=10,max=60,error="health_check_interval the value range is  between 10 and 60, the unit is (s) "))
-    health_check_retries = fields.Integer(validate=validate.Range(min=3,max=5,error="health_check_interval the value range is  between 3 and 5 "))
-    health_check_start_period = fields.Integer(validate=validate.Range(min=60,max=120,error="health_check_interval the value range is  between 60 and 120,the unit is (s) "))
+    health_check_interval = fields.Integer(validate=validate.Range(min=10, max=60,
+                                                                   error="health_check_interval the value range is  between 10 and 60, the unit is (s) "))
+    health_check_retries = fields.Integer(
+        validate=validate.Range(min=3, max=5, error="health_check_interval the value range is  between 3 and 5 "))
+    health_check_start_period = fields.Integer(validate=validate.Range(min=60, max=120,
+                                                                       error="health_check_interval the value range is  between 60 and 120,the unit is (s) "))
     project_ico = fields.String(required=True)
     description = fields.String()
     project_status = fields.Boolean()
@@ -242,7 +250,7 @@ class ProjectInfoSchema(Schema):
     update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
 
     @post_load
-    def calucate_version_code(self, item,**kwargs):
+    def calucate_version_code(self, item, **kwargs):
         print("转换数据{}".format(item))
         base_image_name = item['base_image_name']
         if base_image_name:
@@ -250,7 +258,7 @@ class ProjectInfoSchema(Schema):
             base_image_code = int(''.join(version_parts))
             item['base_image_code'] = base_image_code
 
-        if 'project_code' not in item or item['project_code'] is None :
+        if 'project_code' not in item or item['project_code'] is None:
             project_name = item['project_name']
             item['project_code'] = words_transfer_to_letter(project_name)
 
@@ -263,9 +271,9 @@ class ModuleInfo(db.Model):
     module_name = db.Column(db.String(50), info="模块名称")
     module_package_name = db.Column(db.String(50), info="模块包名称")
     module_rel_path = db.Column(db.String(50), info="模块包的相对路径")
-    module_env_pairs = db.Column(db.Text) #环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
-    module_port_pairs = db.Column(db.Text) #端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
-    module_host_pairs = db.Column(db.Text) #主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
+    module_env_pairs = db.Column(db.Text)  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
+    module_port_pairs = db.Column(db.Text)  # 端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
+    module_host_pairs = db.Column(db.Text)  # 主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
     ## 目录挂载解析---json字符串
     # {"/data/logs/{module_name}/logs": "/mnt/logs",
     # "/data/app/{module_name}/{module_package_name}":"/mnt/scrm-bus-server.jar"
@@ -280,7 +288,7 @@ class ModuleInfo(db.Model):
     # debug开启后，debug_status_port 这个值不能为空
     debug_status_port = db.Column(db.String(5), info="开启debug时的端口")
     # 启动的自定义参数 存储json类型
-    #{"file.encoding":"UTF-8","spring.profiles.active":"prod"}  拼接成"-Dfile.encoding=UTF-8”
+    # {"file.encoding":"UTF-8","spring.profiles.active":"prod"}  拼接成"-Dfile.encoding=UTF-8”
     start_define_params = db.Column(db.Text)
     module_memory = db.Column(db.Integer, info="模块启动时的堆栈内存，Xmx Xms")
     project_id = db.Column(db.Integer, info="模块归属项目ID")
@@ -292,12 +300,11 @@ class ModuleInfo(db.Model):
 
     # 当开启dump后，必须输入dump文件的存储路径
     @validates('dump_oom_status')
-    def validates_dump_oom_path(self,key,dump_oom_status):
+    def validates_dump_oom_path(self, key, dump_oom_status):
         if dump_oom_status and not self.dump_oom_path:
-            raise  ValueError("validates_dump_oom_path field cannot be empty when dump_oom_status is True.")
+            raise ValueError("validates_dump_oom_path field cannot be empty when dump_oom_status is True.")
 
         return dump_oom_status
-
 
     # 当开启debug后，debug_status_port不能为空
     @validates('debug_status')
@@ -330,7 +337,7 @@ class CloudPlatformInfo(db.Model):
     def validate_cloud_platform_proxy_host(self, key, cloud_platform_proxy_host):
         try:
             # Try to create an IP address object from the input
-           ipaddress.ip_address(cloud_platform_proxy_host)
+            ipaddress.ip_address(cloud_platform_proxy_host)
         except ValueError:
             # If the input is not a valid IP address, raise a ValueError
             raise ValueError(f"{key} field must be a valid IPv4 or IPv6 address.")

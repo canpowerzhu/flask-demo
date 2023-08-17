@@ -13,7 +13,7 @@ from utils.custom_status_code_message import generate_response,CustomStatusCode
 
 
 project_module_bp = Blueprint("project_module_bp", __name__)
-project_schema = ProjectInfoSchema()
+
 @project_module_bp.route("/item", methods=["POST"])
 def create_project_info():
     """
@@ -21,13 +21,17 @@ def create_project_info():
     :return:
     """
     request_data = request.json
-
     try:
-        project_schema.validate(request_data)
-    except ValidationError as e:
-        logger.error("来自请求：{}, 检验参数失败: {}".format(request.trace_id,str(e)))
-        return generate_response(CustomStatusCode.BAD_REQUEST,str(e))
-    logger.info("来自请求：{}, 请求体是: {}".format(request.trace_id, request_data))
-    status =  add_project_info_service(request_data)
+        res_data = ProjectInfoSchema().load(request_data)
+    except ValidationError as error:
+        logger.error("来自请求：{}, 检验参数失败: {}".format(request.trace_id, str(error.messages)))
+        return generate_response(CustomStatusCode.BAD_REQUEST, str(error.messages))
 
-    return generate_response(CustomStatusCode.CREATED,request_data) if status else generate_response(CustomStatusCode.INTERNAL_SERVER_ERROR,request_data)
+
+    logger.info("来自请求：{}, 请求体是: {}".format(request.trace_id, res_data))
+    status = add_project_info_service(res_data)
+    return generate_response(CustomStatusCode.CREATED, res_data) if status else generate_response(
+        CustomStatusCode.INTERNAL_SERVER_ERROR, res_data)
+
+
+
