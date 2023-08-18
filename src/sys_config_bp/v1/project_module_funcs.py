@@ -8,14 +8,16 @@ from flask import Blueprint, request
 from marshmallow import ValidationError
 
 from dto.project_info_schema import ProjectInfoSchema
+from dto.project_module_schema import ModuleInfoSchema
 from log_settings import logger
-from service.project_module_service import add_project_info_service, get_project_list_service,update_project_info_service
+from service.project_module_service import add_project_info_service, get_project_list_service, \
+    update_project_info_service, add_module_info_service
 from utils.custom_status_code_message import generate_response, CustomStatusCode
 
 project_module_bp = Blueprint("project_module_bp", __name__)
 
 
-@project_module_bp.route("/item", methods=["POST"])
+@project_module_bp.route("/project/item", methods=["POST"])
 def create_project_info():
     """
     校验参数统一在路由层进行，数据处理放在service
@@ -34,7 +36,7 @@ def create_project_info():
         CustomStatusCode.INTERNAL_SERVER_ERROR, res_data)
 
 
-@project_module_bp.route("/item/list", methods=["GET"])
+@project_module_bp.route("/project/list", methods=["GET"])
 def get_project_list():
     """
     校验参数统一在路由层进行，数据处理放在service
@@ -52,7 +54,7 @@ def get_project_list():
     return generate_response(CustomStatusCode.OK, result) if status else generate_response(
         CustomStatusCode.INTERNAL_SERVER_ERROR)
 
-@project_module_bp.route("/item/<id>", methods=["PUT"])
+@project_module_bp.route("/project/<id>", methods=["PUT"])
 def update_project_item(id):
     """
     校验参数统一在路由层进行，数据处理放在service
