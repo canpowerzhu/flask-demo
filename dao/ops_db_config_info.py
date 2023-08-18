@@ -4,8 +4,9 @@
 # @Description: 针对配置表进行操作CRUD
 import json
 
-from dao.models import SysConfigInfo, SysConfigInfoSchema
+from dao.models import SysConfigInfo
 from dao.models import db
+from dto.sys_config_info_schema import SysConfigInfoSchema
 from log_settings import logger
 
 sys_config_info_schema = SysConfigInfoSchema()

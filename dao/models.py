@@ -5,14 +5,10 @@
 
 import datetime
 import ipaddress
-
 from flask_login import UserMixin
-from marshmallow import Schema, fields, ValidationError, post_load, validate
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import validates
-
 from dao import db
-from utils.transfer_to_pinyin import words_transfer_to_letter
+
 
 """
 如果你将模型类定义在单独的模块中，那么必须在调用db.create_all()之前导入相应的模块，
@@ -47,10 +43,6 @@ class User(db.Model, UserMixin):
     db.to_dict = to_dict
 
 
-class UserSchema(Schema):
-    username = fields.String(required=True)
-    email = fields.Email()
-    password = fields.String(required=True)
 
 
 class Domainaccount(db.Model):
@@ -191,18 +183,6 @@ class SysConfigInfo(db.Model):
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
-class SysConfigInfoSchema(Schema):
-    """
-    配置信  tbl_sys_config_info 序列化与反序列化 校验等的schema
-    """
-    config_name = fields.String()
-    config_key = fields.String()
-    config_value = fields.String()
-    config_group = fields.String()
-    description = fields.String()
-    create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
-    update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
-
 
 ### 发布模块
 class ProjectInfo(db.Model):
@@ -224,46 +204,6 @@ class ProjectInfo(db.Model):
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
-def is_all_upper(s):
-    if not s.isupper():
-        raise ValidationError("project_code only allows uppercase")
-
-
-class ProjectInfoSchema(Schema):
-    id = fields.Integer()
-    project_name = fields.String(required=True, error_messages={"required": "project_name is required"})
-    project_code = fields.String(validate=is_all_upper)
-    project_repo = fields.URL(required=True,
-                              error_messages={"required": "project_repo is required",
-                                              "invalid": "Please enter the content in URL format"})
-    base_image_name = fields.String(required=True)
-    base_image_code = fields.Integer(dump_only=True, error_messages={"invalid": "Please params generate by System"})
-    health_check_interval = fields.Integer(validate=validate.Range(min=10, max=60,
-                                                                   error="health_check_interval the value range is  between 10 and 60, the unit is (s) "))
-    health_check_retries = fields.Integer(
-    validate = validate.Range(min=3, max=5, error="health_check_interval the value range is  between 3 and 5 "))
-    health_check_start_period = fields.Integer(validate=validate.Range(min=60, max=120,
-                                                                       error="health_check_interval the value range is  between 60 and 120,the unit is (s) "))
-    project_ico = fields.String(required=True)
-    description = fields.String()
-    project_status = fields.Boolean()
-    create_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
-    update_time = fields.DateTime(format='%Y-%m-%d %H:%M:%S') \
-
-    @post_load
-    def calucate_version_code(self, item, **kwargs):
-        print("转换数据{}".format(item))
-        base_image_name = item['base_image_name']
-        if base_image_name:
-            version_parts = base_image_name.split('.')
-            base_image_code = int(''.join(version_parts))
-            item['base_image_code'] = base_image_code
-
-        if 'project_code' not in item or item['project_code'] is None:
-            project_name = item['project_name']
-            item['project_code'] = words_transfer_to_letter(project_name)
-
-        return item
 
 
 class ModuleInfo(db.Model):
@@ -272,7 +212,7 @@ class ModuleInfo(db.Model):
     module_name = db.Column(db.String(50), info="模块名称")
     module_package_name = db.Column(db.String(50), info="模块包名称")
     module_rel_path = db.Column(db.String(50), info="模块包的相对路径")
-    module_env_pairs = db.Column(db.Text)  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
+    module_env_pairs = db.Column(db.Text,)  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
     module_port_pairs = db.Column(db.Text)  # 端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
     module_host_pairs = db.Column(db.Text)  # 主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
     ## 目录挂载解析---json字符串
@@ -299,21 +239,7 @@ class ModuleInfo(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
-    # 当开启dump后，必须输入dump文件的存储路径
-    @validates('dump_oom_status')
-    def validates_dump_oom_path(self, key, dump_oom_status):
-        if dump_oom_status and not self.dump_oom_path:
-            raise ValueError("validates_dump_oom_path field cannot be empty when dump_oom_status is True.")
 
-        return dump_oom_status
-
-    # 当开启debug后，debug_status_port不能为空
-    @validates('debug_status')
-    def validates_debug_status_port(self, key, debug_status):
-        if debug_status and not self.debug_status_port:
-            raise ValueError("debug_status_port field cannot be empty when debug_status is True.")
-
-        return debug_status
 
 
 class CloudPlatformInfo(db.Model):
@@ -333,13 +259,3 @@ class CloudPlatformInfo(db.Model):
     description = db.Column(db.String(50), info="备注", nullable=True)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
-
-    @validates('cloud_platform_proxy_host')
-    def validate_cloud_platform_proxy_host(self, key, cloud_platform_proxy_host):
-        try:
-            # Try to create an IP address object from the input
-            ipaddress.ip_address(cloud_platform_proxy_host)
-        except ValueError:
-            # If the input is not a valid IP address, raise a ValueError
-            raise ValueError(f"{key} field must be a valid IPv4 or IPv6 address.")
-        return cloud_platform_proxy_host

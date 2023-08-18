@@ -7,7 +7,7 @@
 from flask import Blueprint, request
 from marshmallow import ValidationError
 
-from dao.models import ProjectInfoSchema
+from dto.project_info_schema import ProjectInfoSchema
 from log_settings import logger
 from service.project_module_service import add_project_info_service, get_project_list_service,update_project_info_service
 from utils.custom_status_code_message import generate_response, CustomStatusCode

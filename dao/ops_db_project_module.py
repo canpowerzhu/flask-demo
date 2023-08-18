@@ -4,8 +4,9 @@
 # @Description:
 import json
 
-from dao.models import ProjectInfo, ProjectInfoSchema
+from dao.models import ProjectInfo
 from dao.models import db
+from dto.project_info_schema import ProjectInfoSchema
 from log_settings import logger
 
 
