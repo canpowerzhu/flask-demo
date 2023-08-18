@@ -4,7 +4,7 @@
 # @Description:
 import json
 
-from dao.models import ProjectInfo
+from dao.models import ProjectInfo,ModuleInfo
 from dao.models import db
 from dto.project_info_schema import ProjectInfoSchema
 from log_settings import logger
@@ -68,3 +68,18 @@ def get_project_list_db(project_name=None, project_code=None) -> object:
     except Exception as e:
         logger.error(e)
         return False, e
+
+
+def add_module_info_db(module_info_dict) -> bool:
+    """
+    :param module_info_dict:
+    :return:
+    """
+    try:
+        db.session.execute(ModuleInfo.__table__.insert(), [module_info_dict])
+        db.session.commit()
+    except Exception as e:
+        logger.error(e)
+        return False
+
+    return True

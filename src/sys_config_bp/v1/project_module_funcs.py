@@ -72,3 +72,22 @@ def update_project_item(id):
     status, result = update_project_info_service(id,res_data)
     return generate_response(CustomStatusCode.OK, result) if status else generate_response(
         CustomStatusCode.INTERNAL_SERVER_ERROR)
+
+@project_module_bp.route("/module/item", methods=["POST"])
+def create_module_info():
+    """
+    校验参数统一在路由层进行，数据处理放在service
+    :return:
+    """
+    request_data = request.json
+    try:
+        res_data = ModuleInfoSchema().load(request_data)
+    except ValidationError as error:
+        logger.error("来自请求：{}, 检验参数失败: {}".format(request.trace_id, str(error.messages)))
+        return generate_response(CustomStatusCode.BAD_REQUEST, str(error.messages))
+
+    logger.info("来自请求：{}, 请求体是: {}".format(request.trace_id, res_data))
+    status = add_module_info_service(res_data)
+    return generate_response(CustomStatusCode.CREATED, res_data) if status else generate_response(
+        CustomStatusCode.INTERNAL_SERVER_ERROR, res_data)
+

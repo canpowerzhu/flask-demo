@@ -5,7 +5,8 @@
 
 from flask import request
 
-from dao.ops_db_project_module import add_project_info_db, get_project_list_db,update_project_info_db
+from dao.ops_db_project_module import add_project_info_db, get_project_list_db, update_project_info_db, \
+    add_module_info_db
 from log_settings import logger
 
 
@@ -35,3 +36,14 @@ def update_project_info_service(id: int,update_project_data:dict):
     if status:
         logger.info("来自请求：{}, 更新项目信息{}".format(request.trace_id, result))
         return status, result
+
+
+
+
+def add_module_info_service(module_data) -> bool:
+    """
+    :param project_data:
+    :return:
+    service层 衔接DO数据层
+    """
+    return True if add_module_info_db(module_data) else False

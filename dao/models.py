@@ -6,7 +6,7 @@
 import datetime
 import ipaddress
 from flask_login import UserMixin
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint,JSON
 from dao import db
 
 
@@ -212,14 +212,15 @@ class ModuleInfo(db.Model):
     module_name = db.Column(db.String(50), info="模块名称")
     module_package_name = db.Column(db.String(50), info="模块包名称")
     module_rel_path = db.Column(db.String(50), info="模块包的相对路径")
-    module_env_pairs = db.Column(db.Text,)  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
-    module_port_pairs = db.Column(db.Text)  # 端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
-    module_host_pairs = db.Column(db.Text)  # 主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
+    module_env_pairs = db.Column(JSON,default={"TZ":"Asia/Shanghai"})  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
+    module_port_pairs = db.Column(JSON)  # 端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
+    module_host_pairs = db.Column(JSON)  # 主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
+    #todo 待增加健康检查的命令字段
     ## 目录挂载解析---json字符串
     # {"/data/logs/{module_name}/logs": "/mnt/logs",
     # "/data/app/{module_name}/{module_package_name}":"/mnt/scrm-bus-server.jar"
     # }
-    module_volumes_pairs = db.Column(db.Text)
+    module_volumes_pairs = db.Column(JSON,default={"/data/logs/{module_name}/logs": "/mnt/logs","/data/app/{module_name}/{module_package_name}":"/mnt/scrm-bus-server.jar"})
     # 当dump_oom_status为True, 启动参数增加 -XX:+HeapDumpOnOutOfMemoryError
     dump_oom_status = db.Column(db.Boolean, info="发生OOM时，是否dump", default=False)
     # 设置后 启动参数增加  -XX:HeapDumpPath=/tmp/dump.hprof
@@ -230,7 +231,7 @@ class ModuleInfo(db.Model):
     debug_status_port = db.Column(db.String(5), info="开启debug时的端口")
     # 启动的自定义参数 存储json类型
     # {"file.encoding":"UTF-8","spring.profiles.active":"prod"}  拼接成"-Dfile.encoding=UTF-8”
-    start_define_params = db.Column(db.Text)
+    start_define_params = db.Column(JSON)
     module_memory = db.Column(db.Integer, info="模块启动时的堆栈内存，Xmx Xms")
     project_id = db.Column(db.Integer, info="模块归属项目ID")
     module_status = db.Column(db.Boolean, info="模块状态是否禁用，默认", default=False)

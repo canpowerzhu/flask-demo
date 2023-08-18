@@ -6,8 +6,9 @@ from flask import request
 from marshmallow import ValidationError, pprint
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from dao.models import UserSchema
+
 from dao.ops_db_users import db_ops_reg_user, db_ops_get_user
+from dto.user_schema import UserSchema
 from log_settings import logger
 
 
