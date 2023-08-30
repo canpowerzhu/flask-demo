@@ -3,14 +3,14 @@
 # @Software: PyCharm
 # @Description:
 from dao import db
-from dao.models import Domainaccount, Domainlist, Domaininfo
+from dao.models import DomainAccount, DomainList, DomainInfo
 from log_settings import logger
 
 
 def get_domain_name_user_token():
     try:
-        response = db.session.query(Domainaccount.username, Domainaccount.token).filter(
-            Domainaccount.account_status == '1', Domainaccount.register_website == "www.name.com").all()
+        response = db.session.query(DomainAccount.username, DomainAccount.token).filter(
+            DomainAccount.account_status == '1', DomainAccount.register_website == "www.name.com").all()
 
     except Exception as e:
         logger.error(e)
@@ -22,7 +22,7 @@ def get_domain_name_user_token():
 # 批量插入一级域名的信息
 def db_ops_root_domain_bulk(bulk_insert_root_domain_info_dict: list):
     try:
-        db.session.execute(Domainlist.__table__.insert(), bulk_insert_root_domain_info_dict)
+        db.session.execute(DomainList.__table__.insert(), bulk_insert_root_domain_info_dict)
         db.session.commit()
     except Exception as e:
         logger.error(e)
@@ -34,7 +34,7 @@ def db_ops_root_domain_bulk(bulk_insert_root_domain_info_dict: list):
 # 根据用户获取token
 def db_ops_get_token(user):
     try:
-        name_user_token = Domainaccount.query.filter_by(username=user).first()
+        name_user_token = DomainAccount.query.filter_by(username=user).first()
     except Exception as e:
         logger.error(e)
         return False, e
@@ -43,7 +43,7 @@ def db_ops_get_token(user):
 
 def db_ops_get_root_domain(user):
     try:
-        name_user_root_domain = Domainlist.query.filter_by(name_account=user).all()
+        name_user_root_domain = DomainList.query.filter_by(name_account=user).all()
     except Exception as e:
         logger.error(e)
         return False, e
@@ -55,11 +55,11 @@ def db_ops_sub_domain_bulk(app, bulk_insert_sub_domain_info, root_domain, count)
     with app.app_context():
         try:
             if len(bulk_insert_sub_domain_info) != 0:
-                db.session.execute(Domaininfo.__table__.insert(), bulk_insert_sub_domain_info)
-                Domainlist.query.filter_by(domain_name=root_domain).update({"name_status": count})
+                db.session.execute(DomainInfo.__table__.insert(), bulk_insert_sub_domain_info)
+                DomainList.query.filter_by(domain_name=root_domain).update({"name_status": count})
                 db.session.commit()
             else:
-                Domainlist.query.filter_by(domain_name=root_domain).update({"name_status": count})
+                DomainList.query.filter_by(domain_name=root_domain).update({"name_status": count})
                 db.session.commit()
         except Exception as e:
             logger.error(e)

@@ -11,7 +11,7 @@ from dto.project_info_schema import ProjectInfoSchema
 from dto.project_module_schema import ModuleInfoSchema
 from log_settings import logger
 from service.project_module_service import add_project_info_service, get_project_list_service, \
-    update_project_info_service, add_module_info_service
+    update_project_info_service, add_module_info_service, generate_project_module_playbook_service
 from utils.custom_status_code_message import generate_response, CustomStatusCode
 
 project_module_bp = Blueprint("project_module_bp", __name__)
@@ -90,4 +90,19 @@ def create_module_info():
     status = add_module_info_service(res_data)
     return generate_response(CustomStatusCode.CREATED, res_data) if status else generate_response(
         CustomStatusCode.INTERNAL_SERVER_ERROR, res_data)
+
+
+
+
+@project_module_bp.route("/module/playbook/<module_id>", methods=["POST"])
+def create_playbook_info(module_id):
+    """
+    校验参数统一在路由层进行，数据处理放在service
+    调用后生成playbook并绑定关系
+    :return:
+    """
+    # 调用生成playbook的service
+    status,result = generate_project_module_playbook_service(module_id)
+    return generate_response(CustomStatusCode.OK,result) if status else generate_response(
+        CustomStatusCode.INTERNAL_SERVER_ERROR)
 

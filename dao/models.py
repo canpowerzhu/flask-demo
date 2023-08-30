@@ -4,11 +4,11 @@
 # @Description:
 
 import datetime
-import ipaddress
-from flask_login import UserMixin
-from sqlalchemy import UniqueConstraint,JSON
-from dao import db
 
+from flask_login import UserMixin
+from sqlalchemy import UniqueConstraint, JSON
+
+from dao import db
 
 """
 如果你将模型类定义在单独的模块中，那么必须在调用db.create_all()之前导入相应的模块，
@@ -43,10 +43,8 @@ class User(db.Model, UserMixin):
     db.to_dict = to_dict
 
 
-
-
-class Domainaccount(db.Model):
-    __tablename__ = "tbl_domain_account"
+class DomainAccount(db.Model):
+    __tablename__ = 'tbl_domain_account'
     id = db.Column(db.Integer, primary_key=True)
     register_website = db.Column(db.String(50), info="域名注册服务商")
     username = db.Column(db.String(50), info="域名账户")
@@ -58,7 +56,7 @@ class Domainaccount(db.Model):
     remark = db.Column(db.String(100), info="备注")
 
 
-class Domaininfo(db.Model):
+class DomainInfo(db.Model):
     __tablename__ = "tbl_domain_info"
     id = db.Column(db.Integer, primary_key=True)
     register_website = db.Column(db.String(100))
@@ -69,7 +67,7 @@ class Domaininfo(db.Model):
     answer = db.Column(db.String(500), info="解析的属性值")
 
 
-class Domainlist(db.Model):
+class DomainList(db.Model):
     __tablename__ = "tbl_domain"
     id = db.Column(db.Integer, primary_key=True)
     name_account = db.Column(db.String(100), info="所属账户")
@@ -183,7 +181,6 @@ class SysConfigInfo(db.Model):
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
-
 ### 发布模块
 class ProjectInfo(db.Model):
     __tablename__ = "tbl_project_info"
@@ -204,6 +201,27 @@ class ProjectInfo(db.Model):
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
 
 
+class ProjectModulePlaybook(db.Model):
+    __tablename__ = "tbl_project_module_playbook"
+    id = db.Column(db.Integer, primary_key=True)
+    md5 = db.Column(db.String(32), unique=True,info="md5")
+    content = db.Column(db.Text, info="content")
+    src_ip = db.Column(db.String(50), info='来源IP')
+    type = db.Column(db.String(10), info='配置类型 TEXT JSON XML YAML HTML Properties',default='YAML')
+    description = db.Column(db.String(50), info="备注", nullable=True)
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
+    update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
+
+
+
+class ProjectModulePlaybookRelation(db.Model):
+    """
+    playbook和模块的关联表，以此控制版本
+    """
+    __tablename__ = "tbl_playbook_relation"
+    id = db.Column(db.Integer, primary_key=True)
+    project_module_id = db.Column(db.Integer, info="项目模块表的ID")
+    playbook_id = db.Column(db.Integer, info="ansible playbook剧本的ID")
 
 
 class ModuleInfo(db.Model):
@@ -211,18 +229,14 @@ class ModuleInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     module_name = db.Column(db.String(50), info="模块名称")
     module_package_name = db.Column(db.String(50), info="模块包名称")
-    module_rel_path = db.Column(db.String(50), info="模块包的相对路径")
-    module_env_pairs = db.Column(JSON,default={"TZ":"Asia/Shanghai"})  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
+    module_rel_path = db.Column(db.String(500), info="模块包的相对路径")
+    module_env_pairs = db.Column(JSON, default={
+        "TZ": "Asia/Shanghai"})  # 环境变量---json字符串{"TZ":"Asia/Shanghai","GOOGLE_API_KEY":"123456key"}
     module_port_pairs = db.Column(JSON)  # 端口协议---json字符串{5000:"tcp",5001:"udp",5002:"tcp"}
-    module_host_pairs = db.Column(JSON)  # 主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
-    #todo 待增加健康检查的命令字段
-    ## 目录挂载解析---json字符串
-    # {"/data/logs/{module_name}/logs": "/mnt/logs",
-    # "/data/app/{module_name}/{module_package_name}":"/mnt/scrm-bus-server.jar"
-    # }
-    module_volumes_pairs = db.Column(JSON,default={"/data/logs/{module_name}/logs": "/mnt/logs","/data/app/{module_name}/{module_package_name}":"/mnt/scrm-bus-server.jar"})
+    module_host_pairs = db.Column(JSON,default={'localhost':'127.0.0.1'})  # 主机解析---json字符串{"moppo-xxl": "192.168.9.227","scrm-bus-es":"192.168.3.4"}
+    module_volumes_pairs = db.Column(JSON)
     # 当dump_oom_status为True, 启动参数增加 -XX:+HeapDumpOnOutOfMemoryError
-    dump_oom_status = db.Column(db.Boolean, info="发生OOM时，是否dump", default=False)
+    dump_oom_status = db.Column(db.Boolean, info="发生OOM时，是否dump", default=True)
     # 设置后 启动参数增加  -XX:HeapDumpPath=/tmp/dump.hprof
     dump_oom_path = db.Column(db.String(50), info="dump文件存储位置", default='/tmp/dump.hprof')
     # debug_status, 启动参数增加 -agentlib:jdwp=transport=dt_socket,address={{ debug_status_port }},server=y,suspend=n
@@ -232,15 +246,13 @@ class ModuleInfo(db.Model):
     # 启动的自定义参数 存储json类型
     # {"file.encoding":"UTF-8","spring.profiles.active":"prod"}  拼接成"-Dfile.encoding=UTF-8”
     start_define_params = db.Column(JSON)
-    module_memory = db.Column(db.Integer, info="模块启动时的堆栈内存，Xmx Xms")
+    module_memory = db.Column(db.Integer, info="模块启动时的堆栈内存，Xmx Xms",default=1024)
     project_id = db.Column(db.Integer, info="模块归属项目ID")
     module_status = db.Column(db.Boolean, info="模块状态是否禁用，默认", default=False)
-    project_cloud_platform = db.Column(db.Integer, info="部署的平云台，意味着走哪个代理")
+    project_cloud_platform = db.Column(db.Integer, info="部署的平云台，意味着走哪个代理",default=1)
     description = db.Column(db.String(50), info="备注", nullable=True)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, info="创建时间")
     update_time = db.Column(db.DateTime, onupdate=datetime.datetime.now, info="更新时间")
-
-
 
 
 class CloudPlatformInfo(db.Model):

@@ -70,12 +70,13 @@ def get_sys_config_list(config_key=None, config_name=None, config_group=None) ->
         result = query.all()
         # 借助marshmallow 格式化数据
         result_list_dict = sys_config_info_schema.dump(result, many=True)
-        logger.info("查询配置项的参数是config_name:{},config_key:{},config_group:{}---响应体是{}".format(config_name,
-                                                                                                         config_key,
-                                                                                                         config_group,
-                                                                                                         result_list_dict))
         return True, result_list_dict
 
     except Exception as e:
         logger.error(e)
         return False, e
+
+
+
+
+

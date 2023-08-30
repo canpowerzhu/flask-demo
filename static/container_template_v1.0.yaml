@@ -1,0 +1,93 @@
+- hosts: "${ deployHost }"
+  remote_user: root
+  gather_facts: true
+  vars:
+      # project_code： 工程代码会用作  日志路径
+      # image_name: 使用的镜像名称
+      # module_name: 模块名称会用作 日志路径、容器网络名称、容器名称 <从数据库模块信息表获取>
+      # module_package_name: jar 包名称  <从数据库模块信息表获取>
+      # my_etc_hosts: hosts 主机名称信息 <从数据库模块信息表获取>
+      # my_volumes: 挂在卷信息  <从数据库模块信息表获取>
+      # my_env: docker内部环境变量信息 <从数据库模块信息表获取>
+      # my_ports： 挂在端口信息 <从数据库模块信息表获取>
+      # my_entrypoint:  启动命令 由字段 dump_oom_status、dump_oom_path、debug_status、debug_status_port、start_define_params、module_memory 决定
+      # timestamp: 系统自动生成
+      # OSS_DOMAIN: OSS域名使用哪个 Alibaba - OSS_DOMAIN_INNER  ;Huawei or AWS or Local - OSS_DOMAIN_ACC  <从数据库配置表获取>
+      # PLATFORM_NAME： 这个值和OSS_DOMAIN 一一对应   <从数据库配置表获取>
+      # JAVA_PACKAGE_PATH: java存储的路径 <从数据库配置表获取>
+  #滚动执行serial 只允许1台执行
+  serial: 1
+  tasks:
+    - name: check  filename "${ module_name }"  status because  is not exit to make
+      file:
+        path: "${JAVA_PACKAGE_PATH}/${ project_code }/${ module_name }"
+        state: directory
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: check  filename logs status because  is not exit to make
+      file:
+        path: "${JAVA_PACKAGE_PATH}/${ project_code }/${ module_name }/logs"
+        state: directory
+        owner: root
+        group: root
+        mode: 0644
+    - name: check download url size
+      shell: "curl -sI ${OSS_DOMAIN}/${project_code}/${PLATFORM_NAME}/${timestamp}/${module_package_name} | grep Content-Length|awk -F ' ' '{print $2}'"
+      register: MySize
+
+    - name: get_url jar send service
+      get_url:
+        url: "${OSS_DOMAIN}/${project_code}/${PLATFORM_NAME}/${timestamp}/${module_package_name}"
+        dest: "${JAVA_PACKAGE_PATH}/${project_code}/${module_name}"
+        mode: '0644'
+        force: yes
+
+    - name: check size Download size
+      shell: "du -b ${JAVA_PACKAGE_PATH}/${project_code}/${module_name}/${module_package_name}  |awk -F ' ' '{print $1}'"
+      register: DownloadSize
+
+    - name: if stdout chekck failed,interrupt execution file size
+      fail: msg=" file size diff failed"
+      when:  MySize.stdout_lines != DownloadSize.stdout_lines
+
+    ---
+    - name: create docker network if not exists
+      docker_network:
+        name: "${project_code}"
+      ignore_errors: True
+
+    - name: remove "${module_name}"
+      docker_container:
+        name: "${module_name}"
+        state: absent
+      ignore_errors: True
+
+
+    - name: create "${project_code}"  module "${module_name}"
+      docker_container:
+        name: "${module_name}"
+        image: "${image_name}"
+        restart_policy: "always"
+        networks_cli_compatible: true
+        dns_servers:
+          - 223.6.6.6
+        networks:
+          - name: "${project_code}"
+        etc_hosts: "${my_etc_hosts}"
+        volumes: "${my_volumes}"
+        tty: true
+        env: "${my_env}"
+        log_driver: "json-file"
+        log_options:
+          tag: "${module_name}"
+        ports: "${my_ports}"
+        entrypoint:  "${my_entrypoint}"
+        healthcheck:
+          interval: 10s
+          start_period: 10s
+          retries: 3
+          test: ["CMD-SHELL", "curl -sS http://127.0.0.1:${ healthPort }/ || exit 1"]
+          timeout: 10s
+
