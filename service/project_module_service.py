@@ -68,14 +68,19 @@ def generate_project_module_playbook_service(module_id: int) -> bool:
         return False
     mk_yaml_obj = MakeModuleYaml(res)
     playbook_str = mk_yaml_obj.make_yaml()
+    md5_str = calculate_md5(playbook_str)
     project_module_playbook_dict = {
-        'md5': calculate_md5(playbook_str),
+        'md5': md5_str,
         'content': playbook_str,
         'src_ip': request.remote_addr,
         'type': 'YAML'
     }
-    add_playbook_content_status = add_project_module_playbook_db(project_module_playbook_dict)
+    # 将生成的yaml的内容入库
+    add_playbook_content_status = add_project_module_playbook_db(module_id,project_module_playbook_dict)
     if not add_playbook_content_status:
         return False, None
+
+
+
     logger.info("service层的结果是{}".format(res))
     return True, res

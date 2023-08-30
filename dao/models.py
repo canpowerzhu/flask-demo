@@ -221,7 +221,7 @@ class ProjectModulePlaybookRelation(db.Model):
     __tablename__ = "tbl_playbook_relation"
     id = db.Column(db.Integer, primary_key=True)
     project_module_id = db.Column(db.Integer, info="项目模块表的ID")
-    playbook_id = db.Column(db.Integer, info="ansible playbook剧本的ID")
+    playbook_md5 = db.Column(db.String(50), info="ansible playbook剧本的md5")
 
 
 class ModuleInfo(db.Model):

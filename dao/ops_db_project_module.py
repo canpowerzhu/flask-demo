@@ -4,8 +4,9 @@
 # @Description:
 import json
 
-from dao.models import ProjectInfo, ModuleInfo, ProjectModulePlaybook
+from dao.models import ProjectInfo, ModuleInfo, ProjectModulePlaybook,ProjectModulePlaybookRelation
 from dao.models import db
+
 from dto.project_info_schema import ProjectInfoSchema
 from dto.project_module_playbook_schema import ProjectModuleCombineSchema
 from log_settings import logger
@@ -145,17 +146,27 @@ def get_project_module_info(module_id: int):
 
 
 
-def add_project_module_playbook_db(project_module_playbook_dict) -> bool:
+def add_project_module_playbook_db(module_id:int,project_module_playbook_dict) -> bool:
     """
     :param project_module_playbook_dict:
     :return:
     """
     try:
+        # 新增playbook完成后，去更新模块和playbook表
         db.session.execute(ProjectModulePlaybook.__table__.insert(), [project_module_playbook_dict])
         db.session.commit()
+
+
+        md5_str =  project_module_playbook_dict['md5']
+        add_playbook_obj = ProjectModulePlaybookRelation(playbook_md5=md5_str,project_module_id=module_id)
+        db.session.add(add_playbook_obj)
+        db.session.commit()
+        logger.info("更新tbl_playbook_relation表. module_id is {}, md5_str is {}".format(module_id, md5_str))
         return True
     except Exception as e:
         logger.error(e)
         return False
+
+
 
 
